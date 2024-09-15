@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">SplitBit</string>
+    <string name="fileprovider">fi.isdc_helsinki.splitbit.fileprovider</string>
+</resources>

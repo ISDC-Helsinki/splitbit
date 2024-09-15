@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    //we store at cache
+    <cache-path
+        name="temp_images"
+        path="images/" />
+</paths>

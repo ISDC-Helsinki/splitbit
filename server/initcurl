@@ -1,0 +1,8 @@
+#!/bin/sh
+URL="https://split-isdc.kuchta.dev"
+[ "$1" = "-l" ] && URL="http://localhost:8080"
+
+curl -X POST $URL/register --data '{"username":"isdc", "password":"isdc"}'
+curl -X POST $URL/groups --data '{"name":"Home Group"}'
+curl -X POST $URL/groups/1/members --data '{"member_id":1}'
+curl -X POST $URL/groups/1/items --data '{"name":"eggs", "price":12.12, "member_id":1, "timestamp":'$(date +%s)'}'

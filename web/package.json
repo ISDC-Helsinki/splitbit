@@ -1,0 +1,71 @@
+{
+  "name": "m3-svelte",
+  "version": "3.2.7",
+  "license": "Apache-2.0 OR GPL-3.0-only",
+  "repository": "KTibow/m3-svelte",
+  "author": {
+    "name": "KTibow"
+  },
+  "homepage": "https://github.com/KTibow/m3-svelte",
+  "keywords": [
+    "svelte",
+    "material",
+    "material 3",
+    "material you",
+    "m3",
+    "ui",
+    "frontend",
+    "design-system",
+    "ui-library",
+    "theming"
+  ],
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "package": "svelte-kit sync && svelte-package -o package",
+    "package-components": "vite build -c vite.config.lib.js",
+    "lint": "prettier --plugin-search-dir . --check . && eslint .",
+    "format": "prettier --plugin-search-dir . --write .",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+  },
+  "exports": {
+    ".": {
+      "types": "./package/index.d.ts",
+      "svelte": "./package/index.js"
+    }
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-static": "^3.0.4",
+    "@sveltejs/kit": "^2.5.25",
+    "@sveltejs/package": "^2.3.4",
+    "@sveltejs/vite-plugin-svelte": "^3.1.2",
+    "@typescript-eslint/eslint-plugin": "^8.3.0",
+    "@typescript-eslint/parser": "^8.3.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-svelte": "^2.43.0",
+    "fast-glob": "^3.3.2",
+    "globals": "^15.9.0",
+    "prettier": "^3.3.2",
+    "prettier-plugin-svelte": "^3.2.6",
+    "svelte-check": "^3.8.6",
+    "tslib": "^2.7.0",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.2"
+  },
+  "dependencies": {
+    "@iconify/types": "^2.0.0",
+    "@ktibow/iconset-material-symbols": "^0.0.1724430085",
+    "@material/material-color-utilities": "^0.3.0",
+    "svelte": "^4.2.19"
+  },
+  "files": [
+    "package"
+  ],
+  "svelte": "./package/index.js",
+  "types": "./package/index.d.ts",
+  "type": "module",
+  "sideEffects": false
+}
