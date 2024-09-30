@@ -27,6 +27,10 @@ func main() {
 		log.Fatal("authMiddleware.MiddlewareInit() Error:" + errInit.Error())
 	}
 
+	r.GET("/meow", func(c *gin.Context) {
+		c.String(200, "oink oink oink")
+	})
+
 	r.POST("/login", authMiddleware.LoginHandler)
 	r.POST("/register", func(c *gin.Context) {
 		var dto struct {
@@ -47,7 +51,7 @@ func main() {
 		if err != nil {
 			println(err)
 			c.JSON(400, gin.H{"error": "Error inserting user to db"})
-                        return
+			return
 		}
 		c.JSON(200, member.ID)
 	})
