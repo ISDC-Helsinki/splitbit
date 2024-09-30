@@ -6,7 +6,10 @@
   import shoppingBagIcon from "@ktibow/iconset-material-symbols/shopping-bag";
   import priceIcon from "@ktibow/iconset-material-symbols/price-check";
   import check from "@ktibow/iconset-material-symbols/check";
+  import iconUser from "@ktibow/iconset-material-symbols/person-outline";
     import { PUBLIC_SERVER_URL } from "$env/static/public";
+    import ListItem from "$lib/containers/ListItem.svelte";
+    import Divider from "$lib/utils/Divider.svelte";
   export let data;
   let name = "";
   let price = "";
@@ -29,6 +32,18 @@
     });
   };
   let open = true;
+
+  let doNothing = (e : Event) => {
+    e.preventDefault();
+  }
+
+  let isDropdownPersons = false;
+
+  let dropDownPersons = (e : Event) => {
+    e.preventDefault();
+    isDropdownPersons = !isDropdownPersons;
+    console.log("isdropdown", isDropdownPersons);
+  }
 
 </script>
 
@@ -64,6 +79,27 @@
         <div class="fields">
           <TextField leadingIcon={groceryIcon} bind:value={name} name="name" />
           <TextField leadingIcon={priceIcon} bind:value={price} name="price" />
+          <div>
+            Paid by 
+            {#if !isDropdownPersons}
+              <Button type="tonal" on:click={dropDownPersons}>me</Button>
+            {/if}
+            {#if isDropdownPersons}
+              <ListItemButton on:click={dropDownPersons}>
+                <svelte:fragment slot="leading">
+                  <Icon icon={iconUser} /> Person 1
+                </svelte:fragment>
+              </ListItemButton>
+              <Divider></Divider>
+              <ListItemButton on:click={dropDownPersons}>
+                <svelte:fragment slot="leading">
+                  <Icon icon={iconUser} /> Person 2
+                </svelte:fragment>
+              </ListItemButton>
+            {/if}
+             and split 
+            <Button type="tonal" display=true on:click={doNothing}>equally</Button>
+          </div>
         </div>
         <div class="fabpos">
           <FAB icon={check} size="large"></FAB>
