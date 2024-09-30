@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -47,7 +48,7 @@ func main() {
 		if err != nil {
 			println(err)
 			c.JSON(400, gin.H{"error": "Error inserting user to db"})
-                        return
+			return
 		}
 		c.JSON(200, member.ID)
 	})
@@ -59,6 +60,18 @@ func main() {
 		claims := jwt.ExtractClaims(c)
 		g, _ := models.Groups(models.MemberWhere.ID.EQ(claims["id"].(int64))).AllG(c)
 		c.JSON(http.StatusOK, g)
+	})
+
+	r.GET("/groups/:id", func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(400, gin.H{"error": "You have put a wrong id."})
+		}
+		group, err := models.Groups(models.GroupWhere.ID.EQ(int64(id))).OneG(c)
+		if err != nil {
+			c.JSON(400, gin.H{"error": "Cannot fetch from db"})
+		}
+		c.JSON(200, group)
 	})
 
 	r.GET("/groups-nonauthed", func(c *gin.Context) {
@@ -82,21 +95,32 @@ func main() {
 			Name: dto.Name,
 		}
 		group.InsertG(c, boil.Infer())
+		c.JSON(200, group.ID)
 	})
 
 	r.GET("/groups/:id/items", func(c *gin.Context) {
 		id, _ := strconv.Atoi(c.Param("id"))
-		g, _ := models.Items(models.ItemWhere.GroupID.EQ(int64(id)), OrderBy(models.ItemColumns.Timestamp+" desc")).AllG(c)
+		g, err := models.Items(models.ItemWhere.GroupID.EQ(int64(id)), Load(models.ItemRels.Members), OrderBy(models.ItemColumns.Timestamp+" desc")).AllG(c)
+		// var ItemWithExcluded struct {
+		//     models.Item               // Embed the original Item struct
+		//     ExcludedMembersIDs []int `json:"excluded_members_ids"` // Additional field
+		// }
+		// ItemWithExcluded.Item = *g[0]
+		if err != nil {
+			fmt.Print(err)
+		}
+
 		c.JSON(http.StatusOK, g)
 	})
 
 	r.POST("/groups/:id/items", func(c *gin.Context) {
 		id, _ := strconv.Atoi(c.Param("id"))
 		var dto struct {
-			Name      string  `json:"name"`
-			Timestamp int64   `json:"timestamp"`
-			Price     float64 `json:"price"`
-			Member_id int64   `json:"member_id"`
+			Name         string  `json:"name"`
+			Timestamp    int64   `json:"timestamp"`
+			Price        float64 `json:"price"`
+			Member_id    int64   `json:"member_id"`
+			Excluded_ids []int64 `json:"excluded_ids"`
 		}
 
 		if err := c.BindJSON(&dto); err != nil {
@@ -111,11 +135,27 @@ func main() {
 			GroupID:   int64(id),
 			AuthorID:  dto.Member_id,
 		}
+		excluded, err := models.Members(models.MemberWhere.ID.IN(dto.Excluded_ids)).AllG(c)
 
-		if err := item.InsertG(c, boil.Infer()); err != nil {
-			print(err)
-			c.JSON(400, gin.H{"error": "Error inserting to db"})
+		if err != nil {
+			c.JSON(400, gin.H{"error": "Can't add item due to excluded ids fetching error"})
+			return
 		}
+		tx, err := boil.BeginTx(c, nil)
+
+		if err := item.Insert(c, tx, boil.Infer()); err != nil {
+			print(err)
+			tx.Rollback()
+			c.JSON(400, gin.H{"error": "Error inserting item to db"})
+		}
+
+		if err = item.AddMembers(c, tx, false, excluded...); err != nil {
+			print(err)
+			tx.Rollback()
+			c.JSON(400, gin.H{"error": "Error inserting member-item relation to db"})
+		}
+
+		tx.Commit()
 		c.JSON(200, item.ID)
 	})
 
@@ -147,7 +187,7 @@ func main() {
 			c.JSON(404, gin.H{"error": "Group to add the user to not found"})
 			return
 		}
-		member.AddGroupsG(c, false, group)
+		group.AddMembersG(c, false, member)
 	})
 
 	// Demo of the ocr functionality
