@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="138.50063mm"
+   height="158.81483mm"
+   viewBox="0 0 138.50063 158.81483"
+   version="1.1"
+   id="svg1"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <linearGradient
+       id="linearGradient18">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0"
+         id="stop18" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0;"
+         offset="1"
+         id="stop19" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient16">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0"
+         id="stop16" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0;"
+         offset="1"
+         id="stop17" />
+    </linearGradient>
+    <linearGradient
+       xlink:href="#linearGradient16"
+       id="linearGradient17"
+       x1="25.744833"
+       y1="130.58159"
+       x2="163.83408"
+       y2="130.58159"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1.3113207,-0.07128079)" />
+    <linearGradient
+       xlink:href="#linearGradient18"
+       id="linearGradient19"
+       x1="174.28482"
+       y1="71.894691"
+       x2="73.862663"
+       y2="28.634628"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1.3113207,-0.07128079)" />
+  </defs>
+  <g
+     id="layer1"
+     transform="translate(-27.056154,-19.624071)">
+    <path
+       style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:179.574px;font-family:'TeX Gyre Heros';-inkscape-font-specification:'TeX Gyre Heros Bold Italic';fill:url(#linearGradient19);stroke-width:0.935;stroke-dasharray:none"
+       d="m 120.30374,19.62407 c -35.376054,0 -57.822838,21.728652 -57.822838,48.305578 0,2.436366 0.266463,4.667806 0.761194,6.744808 L 155.58014,92.039805 C 151.23709,85.288042 142.73073,80.854929 130.53981,78.345033 L 110.9658,74.39437 C 94.085858,70.982467 89.237408,68.109415 89.237408,61.285609 c 0,-11.492725 10.056137,-18.675862 26.397362,-18.675862 15.26378,0 23.70398,5.20753 23.70398,14.904516 0,0.897869 -0.17958,2.514333 -0.35915,4.130497 h 25.14059 c 1.07744,-5.028067 1.4366,-7.54221 1.4366,-11.133687 0,-19.393973 -16.70081,-30.887003 -45.25305,-30.887003 z"
+       id="text1" />
+    <path
+       id="path1"
+       style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:179.574px;font-family:'TeX Gyre Heros';-inkscape-font-specification:'TeX Gyre Heros Bold Italic';fill:url(#linearGradient17);stroke-width:1.20077;stroke-dasharray:none"
+       d="m 48.30912,82.581714 c 5.602881,8.536343 16.396446,14.036466 33.530253,17.622696 l 22.184697,4.69894 c 20.60014,4.46378 27.39161,7.51813 27.39161,18.56011 0,15.74069 -14.94042,24.90338 -38.483444,24.90338 -18.921878,0 -30.366894,-6.55577 -32.110702,-17.99941 l -18.519799,35.06091 c 10.553626,8.45988 26.181187,13.01057 45.649926,13.01057 48.444269,0 77.193739,-26.78327 77.193739,-66.48741 0,-2.36015 -0.22666,-4.58526 -0.65319,-6.69365 z M 27.962041,121.81911 c -0.679125,4.69872 -0.905887,7.04827 -0.905887,10.33735 0,3.51684 0.347236,6.84716 1.003039,9.99733 L 38.80014,121.81911 Z m 13.441041,0 -12.50208,23.66884 c 1.057944,3.60632 2.546194,6.95291 4.472595,10.00611 l 17.787545,-33.67495 z m 12.361519,0 -18.928044,35.83451 c 1.646337,2.25618 3.53743,4.34308 5.667355,6.25078 l 20.14399,-38.13618 c 0.08179,-1.15052 0.209041,-2.48911 0.365352,-3.94911 z" />
+  </g>
+</svg>
