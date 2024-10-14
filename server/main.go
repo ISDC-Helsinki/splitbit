@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-contrib/cors"
@@ -19,8 +21,14 @@ func main() {
 
 	setupDB()
 	r := gin.Default()
-	r.Use(cors.Default())
-
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"}, // Your frontend URL
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,           // Allow cookies to be sent
+		MaxAge:           12 * time.Hour, // How long the results of a preflight request can be cached
+	}))
 	authMiddleware := createAuthMiddleware()
 	errInit := authMiddleware.MiddlewareInit()
 	if errInit != nil {
@@ -47,7 +55,7 @@ func main() {
 		if err != nil {
 			println(err)
 			c.JSON(400, gin.H{"error": "Error inserting user to db"})
-                        return
+			return
 		}
 		c.JSON(200, member.ID)
 	})
@@ -62,6 +70,7 @@ func main() {
 	})
 
 	r.GET("/groups-nonauthed", func(c *gin.Context) {
+		fmt.Print(c.Cookie("jwt"))
 		g, err := models.Groups().AllG(c)
 		if err != nil {
 			c.JSON(500, gin.H{"error": "Error fetching groups from db"})

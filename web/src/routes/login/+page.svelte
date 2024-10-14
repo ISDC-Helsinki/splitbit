@@ -1,52 +1,86 @@
 <script>
-    import { goto } from '$app/navigation';
-    import { Button, TextFieldOutlined, Card } from '$lib';
-    import CalendarPicker from '$lib/forms/_picker/CalendarPicker.svelte';
-  
-    let instanceUrl = '';
-    let username = '';
-    let password = '';
-  
-    async function handleLogin() {
-      try {
-        const response = await fetch(`${instanceUrl}/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ username, password })
-        });
-  
-        if (response.ok) {
-          const data = await response.json();
-          // Save the token or user data as needed
-          console.log('Login successful:', data);
-          // Redirect to the main page or dashboard
-          goto('/');
-        } else {
-          console.error('Login failed:', response.statusText);
-        }
-      } catch (error) {
-        console.error('Error during login:', error);
-      }
+  import { goto } from "$app/navigation";
+  import { Button, TextFieldOutlined, Card } from "$lib";
+  import CalendarPicker from "$lib/forms/_picker/CalendarPicker.svelte";
+
+  /**
+   * @param {string} str
+   */
+  function base64UrlDecode(str) {
+    // Replace URL-safe characters
+    str = str.replace(/-/g, "+").replace(/_/g, "/");
+    // Pad with '=' to make it a valid Base64 string
+    while (str.length % 4) {
+      str += "=";
     }
-  </script>
-  
-  <form on:submit|preventDefault={handleLogin}>
-    <center>
+    return JSON.parse(atob(str));
+  }
+
+  let instanceUrl = "http://localhost:8080";
+  let username = "";
+  let password = "";
+
+  async function handleLogin() {
+    try {
+      const response = await fetch(`${instanceUrl}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Save the token or user data as needed
+        console.log("Login successful:", data);
+        // Split the JWT into its components
+        const parts = data["token"].split(".");
+        if (parts.length !== 3) {
+          throw new Error("Invalid JWT token");
+        }
+
+        // Decode the payload
+        const payload = base64UrlDecode(parts[1]);
+
+        // Extract username and userID
+        const username = payload.username;
+        const userID = payload.id;
+
+        // Store in localStorage
+        localStorage.setItem("username", username);
+        localStorage.setItem("userID", userID);
+
+        // Optional: Log the values to the console
+        console.log("Username:", username);
+        console.log("User ID:", userID);
+        // Redirect to the main page or dashboard
+        goto("/");
+      } else {
+        console.error("Login failed:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+    }
+  }
+</script>
+
+<form on:submit|preventDefault={handleLogin}>
+  <center>
     <Card type="elevated" display="square">
-    <img src="slogo.svg" alt="Logo" width="90px" height="90px" >
-    <h1>Welcome to SplitBit Instance</h1>
-    <div>
-      <p class="m3-font-body-medium"> Hosted at splitbit.isdc.fi </p>
-    </div>
-    <div>
-      <TextFieldOutlined name = "username" bind:value={username} required />
-    </div>
-    <div>
-        <TextFieldOutlined name = "password" bind:value={password} required />
+      <img src="slogo.svg" alt="Logo" width="90px" height="90px" />
+      <h1>Welcome to SplitBit Instance</h1>
+      <div>
+        <p class="m3-font-body-medium">Hosted at splitbit.isdc.fi</p>
       </div>
-    <Button type="filled">Log in</Button>
+      <div>
+        <TextFieldOutlined name="username" bind:value={username} required />
+      </div>
+      <div>
+        <TextFieldOutlined name="password" bind:value={password} required />
+      </div>
+      <Button type="filled">Log in</Button>
     </Card>
   </center>
-  </form>
+</form>
