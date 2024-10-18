@@ -66,21 +66,44 @@
   }
 </script>
 
-<form on:submit|preventDefault={handleLogin}>
-  <center>
-    <Card type="elevated" display="square">
-      <img src="slogo.svg" alt="Logo" width="90px" height="90px" />
-      <h1>Welcome to SplitBit Instance</h1>
-      <div>
-        <p class="m3-font-body-medium">Hosted at splitbit.isdc.fi</p>
-      </div>
-      <div>
-        <TextFieldOutlined name="username" bind:value={username} required />
-      </div>
-      <div>
-        <TextFieldOutlined name="password" bind:value={password} required />
-      </div>
-      <Button type="filled">Log in</Button>
-    </Card>
-  </center>
-</form>
+<main>
+  <form class="elevation-3" on:submit|preventDefault={handleLogin}>
+    <img src="slogo.svg" alt="Logo" width="90px" height="90px" />
+    <h1>Welcome to SplitBit Instance</h1>
+    <div>
+      <p class="m3-font-body-medium">Hosted at splitbit.isdc.fi</p>
+    </div>
+    <div>
+      <TextFieldOutlined name="username" bind:value={username} required />
+    </div>
+    <div>
+      <TextFieldOutlined extraOptions={{"type":"password"}} name="password" bind:value={password} required />
+    </div>
+    <Button type="filled">Log in</Button>
+  </form>
+</main>
+
+<style lang="scss">
+  form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: fit-content;
+    margin: auto;
+    padding: 3rem 4rem;
+    height: fit-content;
+    background: #fff;
+    justify-content: center;
+    border-radius: 0.8rem;
+    div {
+            margin-bottom:0.5rem;
+    }
+  }
+  main {
+    height: 100%;
+    display: flex;
+  }
+  img {
+        filter:invert(1);
+  }
+</style>
