@@ -36,40 +36,41 @@ func createAuthMiddleware() *jwt.GinJWTMiddleware {
 			if err := c.ShouldBind(&loginVals); err != nil {
 				return "", jwt.ErrMissingLoginValues
 			}
-                        user, err := models.Members(models.MemberWhere.Username.EQ(loginVals.Username),
+			user, err := models.Members(models.MemberWhere.Username.EQ(loginVals.Username),
 				models.MemberWhere.Password.EQ(loginVals.Password),
 			).OneG(c)
-                        if err != nil {
-                                return nil, jwt.ErrFailedAuthentication
-                        }
+			if err != nil {
+				return nil, jwt.ErrFailedAuthentication
+			}
 			return user, nil
 		},
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*models.Member); ok {
-                                println(v.Username)
+				println(v.Username)
 				return jwt.MapClaims{
 					identityKey: v.ID,
-					"username": v.Username,
+					"username":  v.Username,
 				}
 			}
 			return jwt.MapClaims{}
 		},
-                LoginResponse: func(c *gin.Context, code int, token string, expire time.Time) {
+		LoginResponse: func(c *gin.Context, code int, token string, expire time.Time) {
+			c.SetCookie("jwt", token, 3600, "/", "", false, true)
+
 			c.JSON(http.StatusOK, gin.H{
 				"code":   http.StatusOK,
 				"token":  token,
 				"expire": expire.Format(time.RFC3339),
 			})
-                },
+		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
 			return int64(claims[identityKey].(float64))
-                },
+		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
-                        return true
-                        if v, ok := data.(int64); ok && v == 1 {
-                                return true
-                        }
+			if v, ok := data.(int64); ok && v == 1 {
+				return true
+			}
 			return false
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
