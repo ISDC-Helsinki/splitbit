@@ -1,8 +1,27 @@
 #!/bin/sh
-URL="https://split-isdc.kuchta.dev"
-[ "$1" = "-l" ] && URL="http://localhost:8080"
-
+URL="http://localhost:8080"
+[ "$1" = "-o" ] && URL="https://split-isdc.kuchta.dev"
+        
+# First batch
 curl -X POST $URL/register --data '{"username":"isdc", "password":"isdc"}'
+curl -X POST $URL/register --data '{"username":"another", "password":"another"}'
+curl -X POST $URL/register --data '{"username":"yet", "password":"yet"}'
 curl -X POST $URL/groups --data '{"name":"Home Group"}'
 curl -X POST $URL/groups/1/members --data '{"member_id":1}'
+curl -X POST $URL/groups/1/members --data '{"member_id":2}'
+curl -X POST $URL/groups/1/members --data '{"member_id":3}'
 curl -X POST $URL/groups/1/items --data '{"name":"eggs", "price":12.12, "member_id":1, "timestamp":'$(date +%s)'}'
+curl -X POST $URL/groups/1/items --data '{"name":"art", "price":5.65, "member_id":1, "timestamp":'$(date +%s)'}'
+curl -X POST $URL/groups/1/items --data '{"name":"mice", "price":9.65, "member_id":2, "timestamp":'$(date +%s)'}'
+
+# Second batch
+curl -X POST $URL/register --data '{"username":"jan", "password":"jan"}'
+curl -X POST $URL/register --data '{"username":"alek", "password":"alek"}'
+curl -X POST $URL/register --data '{"username":"maksim", "password":"maksim"}'
+curl -X POST $URL/groups --data '{"name":"Hideout"}'
+curl -X POST $URL/groups/2/members --data '{"member_id":4}'
+curl -X POST $URL/groups/2/members --data '{"member_id":5}'
+curl -X POST $URL/groups/2/members --data '{"member_id":6}'
+curl -X POST $URL/groups/2/items --data '{"name":"mayo", "price":48.12, "member_id":4, "timestamp":'$(date +%s)'}'
+curl -X POST $URL/groups/2/items --data '{"name":"laptop", "price":59.65, "member_id":5, "timestamp":'$(date +%s)'}'
+curl -X POST $URL/groups/2/items --data '{"name":"pc", "price":339.65, "member_id":4, "timestamp":'$(date +%s)'}'
