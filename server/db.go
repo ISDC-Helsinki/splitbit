@@ -7,10 +7,11 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
-func setupDB() {
-	db, err := sql.Open("sqlite3", "test.db")
+func setupDB() *sql.DB {
+	db, err := sql.Open("sqlite3", "data.db")
 	if err != nil {
 		log.Fatal(" Db Error " + err.Error())
 	}
 	boil.SetDB(db)
+        return db
 }
