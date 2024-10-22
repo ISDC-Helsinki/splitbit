@@ -1,4 +1,0 @@
-add-global-variants = true
-
-[sqlite3]
-dbname = "test.db"

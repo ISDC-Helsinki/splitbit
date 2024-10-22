@@ -7,7 +7,7 @@ import (
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
-	"isdc-helsinki.fi/splitbit/server/models"
+	"isdc-helsinki.fi/splitbit/server/data"
 )
 
 type loginDTO struct {
@@ -23,7 +23,7 @@ type User struct {
 	username string
 }
 
-func createAuthMiddleware() *jwt.GinJWTMiddleware {
+func createAuthMiddleware(queries *data.Queries) *jwt.GinJWTMiddleware {
 
 	middleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",
@@ -36,16 +36,15 @@ func createAuthMiddleware() *jwt.GinJWTMiddleware {
 			if err := c.ShouldBind(&loginVals); err != nil {
 				return "", jwt.ErrMissingLoginValues
 			}
-			user, err := models.Members(models.MemberWhere.Username.EQ(loginVals.Username),
-				models.MemberWhere.Password.EQ(loginVals.Password),
-			).OneG(c)
+			user, err := queries.GetUserByUsernameAndPassword(c, data.GetUserByUsernameAndPasswordParams{Username: loginVals.Username, Password: loginVals.Password})
+
 			if err != nil {
 				return nil, jwt.ErrFailedAuthentication
 			}
 			return user, nil
 		},
-		PayloadFunc: func(data interface{}) jwt.MapClaims {
-			if v, ok := data.(*models.Member); ok {
+		PayloadFunc: func(d interface{}) jwt.MapClaims {
+			if v, ok := d.(data.GetUserByUsernameAndPasswordRow); ok {
 				println(v.Username)
 				return jwt.MapClaims{
 					identityKey: v.ID,
