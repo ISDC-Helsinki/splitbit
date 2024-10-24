@@ -69,6 +69,45 @@ func main() {
 		c.JSON(http.StatusOK, g)
 	})
 
+	r.GET("/groups/:id", func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(400, gin.H{"error": "id input invalid"})
+		}
+		group, err := models.Groups(Load(models.GroupRels.Members),
+			Load(models.GroupRels.Items, Limit(10)), models.GroupWhere.ID.EQ(int64(id))).OneG(c)
+
+		if err != nil {
+			c.JSON(400, gin.H{"error": "with group info fetch"})
+			return
+		}
+		var info struct {
+			Sum float64 `boil:"total_sum"`
+		}
+
+		// Use query building
+		err = models.NewQuery(Select("sum(price) as total_sum"), From("items")).BindG(c, &info)
+
+		if err != nil {
+			c.JSON(400, gin.H{"error": "with aggregating total_price"})
+			return
+		}
+
+		var response = struct {
+			Name    string             `json:"name"`
+			Members models.MemberSlice `json:"members"`
+			Items   models.ItemSlice   `json:"items"`
+			Balance float64            `json:"balance"`
+		}{
+			Name:    group.Name, // Initializing the Name field with a value
+			Members: group.R.GetMembers(),
+			Items:   group.R.GetItems(),
+			Balance: info.Sum,
+		}
+		c.JSON(http.StatusOK, response)
+
+	})
+
 	r.GET("/groups-nonauthed", func(c *gin.Context) {
 		fmt.Print(c.Cookie("jwt"))
 		g, err := qs.GetGroupsAll(c)

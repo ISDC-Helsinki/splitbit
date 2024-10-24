@@ -24,14 +24,13 @@
       method: "POST",
       body: JSON.stringify(item),
     }).then((_) => {
-      data.items = [item, ...data.items]
-      
+      data.items = [item, ...data.items];
     });
   };
   let open = true;
-
 </script>
 
+<h1>{data.group_data.name}</h1>
 <div class="screen">
   <div class="container">
     <div class="content">
@@ -78,7 +77,7 @@
     display: flex;
     align-items: flex-start;
     height: 100%;
-    gap:1rem;
+    gap: 1rem;
   }
   .contents {
     padding: 1rem;
