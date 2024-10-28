@@ -1,0 +1,328 @@
+openapi: 3.0.3
+info:
+  title: Group Management API
+  description: An API for managing groups, members, and items.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+security:
+  # This makes every route by default auth protected
+  - BearerAuthHeader: [] # Authorization header
+  - BearerAuthCookie: [] # Token in cookie 
+components:
+  securitySchemes:
+    BearerAuthHeader:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    BearerAuthCookie:
+      type: apiKey
+      in: cookie
+      name: jwt
+  responses:
+    PongResponse:
+      description: "Successful response"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+    LoginSuccess:
+      description: Successful login
+      headers:
+        Set-Cookie:
+          required: true
+          description: HTTP-only cookie for session management
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+            required:
+              - token
+    GroupOverview:
+      description: "Overview of the group"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              members:
+                type: array
+                $ref: "#/components/schemas/Member"
+              items:
+                type: array
+                $ref: "#/components/schemas/Item"
+              money_balance:
+                type: integer
+            required:
+              - name
+              - members
+              - money_balance
+  requestBodies:
+    register:
+      description: Registration body
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+              displayName:
+                type: string
+              password:
+                type: string
+            required:
+              - username
+              - password
+    addItem:
+      description: Add Item body
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Item'
+  schemas:
+    UserCredentials:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+        password:
+          type: string
+      required:
+        - username
+        - password
+    Group:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      required:
+        - id
+        - name
+    Item:
+      type: object
+      properties:
+        id:
+          type: integer
+          # readOnly: true # TODO unfortunately ogen doesn't support readOnly marker. But we want to reuse this schema for posting 
+          # as well as getting for simplicity. So for now, the convention would be to set the id to 0 as it will get ignored either way.
+        timestamp:
+          type: integer
+        name:
+          type: string
+        price:
+          type: number
+        author_id:
+          type: integer
+        group_id:
+          # readOnly: true # TODO same as above, untill https://github.com/ogen-go/ogen/issues/986 gets implemented
+          type: integer
+      required:
+        - id
+        - timestamp
+        - name
+        - price
+        - author_id
+        - group_id
+    Member:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        displayName:
+          type: string
+      required:
+        - id
+        - name
+        - displayName
+paths:
+  /ping:
+    get:
+      security: []
+      summary: Returns a pong response
+      operationId: getPing
+      responses:
+        "200":
+          $ref: "#/components/responses/PongResponse"
+  /login:
+    post:
+      summary: Login with username and password
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCredentials"
+      responses:
+        "200":
+          $ref: "#/components/responses/LoginSuccess"
+        "401":
+          description: "Login successful"
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /register:
+    post:
+      security: []
+      summary: Register a new user
+      requestBody:
+        $ref: "#/components/requestBodies/register"
+      responses:
+        "200":
+          description: User registered successfully
+          content: {}
+        "409":
+          description: Error registering user, the user already exists
+          content: {}
+  /groups:
+    get:
+      summary: Get all groups (authenticated)
+      responses:
+        "200":
+          description: List of groups for the authenticated user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Group"
+    post:
+      summary: Add a group (it doesn't yet at the owner to the group itself)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+      responses:
+        "200":
+          description: Added group successfully
+          content:
+            application/json:
+              schema:
+                type: integer
+  /groups-nonauthed:
+    get:
+      summary: Get all groups (non authenticated for demo purposes)
+      security: []
+      responses:
+        "200":
+          description: List of groups that user with id 1 has
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Group"
+  /groups/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get overview of the group with id
+      responses:
+        "200":
+          $ref: "#/components/responses/GroupOverview"
+    put:
+      summary: Update a group with id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Group"
+      responses:
+        "200":
+          description: Group successfully updated
+          content:
+            application/json:
+              schema:
+                type: integer
+  /groups/{id}/members:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      summary: Add member to a group
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                member_id:
+                  type: integer
+              required:
+                - member_id
+      responses:
+        "200":
+          description: Adding member to group succeeded
+          content: {}
+  /groups/{id}/items:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get items of the group with id
+      responses:
+        "200":
+          description: List of items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Item"
+    post:
+      summary: Add item to a group of id
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Item"
+      responses:
+        "200":
+          description: Adding item to group succeeded
+          content:
+            application/json:
+              schema:
+                type: integer

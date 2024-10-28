@@ -13,12 +13,12 @@ class LoginViewModel : ViewModel() {
     fun login(request: AuthRequest) {
         viewModelScope.launch {
             try {
-                val response = Server.api.login(request)
-                if (response.isSuccessful) {
-                    response.body()?.let { _ ->
-                        // Update local state if necessary
-                    }
-                }
+//                val response = Server.api.login(request)
+//                if (response.isSuccessful) {
+//                    response.body()?.let { _ ->
+//                        // Update local state if necessary
+//                    }
+//                }
             } catch (e: Exception) {
                 // Handle error here
             }

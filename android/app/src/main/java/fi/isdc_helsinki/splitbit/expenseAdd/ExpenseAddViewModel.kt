@@ -14,12 +14,12 @@ class ExpenseAddViewModel : ViewModel() {
     fun addItem(newItem: Item) {
         viewModelScope.launch {
             try {
-                val response = Server.api.postItem(newItem)
-                if (response.isSuccessful) {
-                    response.body()?.let { _ ->
-                        // Update local state if necessary
-                    }
-                }
+//                val response = Server.api.postItem(newItem)
+//                if (response.isSuccessful) {
+//                    response.body()?.let { _ ->
+//                        // Update local state if necessary
+//                    }
+//                }
             } catch (e: Exception) {
                 // Handle error here
             }

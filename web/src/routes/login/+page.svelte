@@ -1,6 +1,7 @@
 <script>
   import { goto } from "$app/navigation";
   import { Button, TextFieldOutlined, Card } from "$lib";
+  import api from "$lib/api/api";
   import CalendarPicker from "$lib/forms/_picker/CalendarPicker.svelte";
 
   /**
@@ -16,27 +17,21 @@
     return JSON.parse(atob(str));
   }
 
-  let instanceUrl = "http://localhost:8080";
   let username = "";
   let password = "";
 
   async function handleLogin() {
     try {
-      const response = await fetch(`${instanceUrl}/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
+      const {
+        data, // only present if 2XX response
+        error, // only present if 4XX or 5XX response
+        response,
+      } = await api.POST("/login", { body: { username, password } });
+      if (response.ok && data != undefined) {
         // Save the token or user data as needed
-        console.log("Login successful:", data);
+        console.log("Login successful:", data.token);
         // Split the JWT into its components
-        const parts = data["token"].split(".");
+        const parts = data.token.split(".");
         if (parts.length !== 3) {
           throw new Error("Invalid JWT token");
         }
@@ -77,7 +72,12 @@
       <TextFieldOutlined name="username" bind:value={username} required />
     </div>
     <div>
-      <TextFieldOutlined extraOptions={{"type":"password"}} name="password" bind:value={password} required />
+      <TextFieldOutlined
+        extraOptions={{ type: "password" }}
+        name="password"
+        bind:value={password}
+        required
+      />
     </div>
     <Button type="filled">Log in</Button>
   </form>
@@ -96,7 +96,7 @@
     justify-content: center;
     border-radius: 0.8rem;
     div {
-            margin-bottom:0.5rem;
+      margin-bottom: 0.5rem;
     }
   }
   main {
@@ -104,6 +104,6 @@
     display: flex;
   }
   img {
-        filter:invert(1);
+    filter: invert(1);
   }
 </style>
