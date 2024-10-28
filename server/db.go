@@ -3,10 +3,14 @@ package main
 import (
 	"context"
 	"database/sql"
+	_ "embed"
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
+
+//go:embed schema.sql
+var ddl string
 
 func setupDB() *sql.DB {
 	dbPath := "data.db"

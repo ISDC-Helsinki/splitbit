@@ -1,113 +1,131 @@
 package main
 
 import (
+	"context"
+	"errors"
+	"fmt"
 	"log"
 	"net/http"
+	"net/url"
+	"strconv"
 	"time"
 
-	jwt "github.com/appleboy/gin-jwt/v2"
-	"github.com/gin-gonic/gin"
-	"isdc-helsinki.fi/splitbit/server/data"
+	"github.com/golang-jwt/jwt/v5"
+	"isdc.fi/splitbit/server/api"
+	"isdc.fi/splitbit/server/data"
 )
 
-type loginDTO struct {
-	Username string `form:"username" json:"username" binding:"required"`
-	Password string `form:"password" json:"password" binding:"required"`
+type Security struct{}
+type CustomClaims struct {
+	UserID   int    `json:"id"`
+	Username string `json:"username"`
+	jwt.RegisteredClaims
 }
 
-var identityKey = "id"
+var secretKey = []byte("secret key")
 
-// User demo
-type User struct {
-	id       int
-	username string
-}
-
-func createAuthMiddleware(queries *data.Queries) *jwt.GinJWTMiddleware {
-
-	middleware, err := jwt.New(&jwt.GinJWTMiddleware{
-		Realm:       "test zone",
-		Key:         []byte("secret key"),
-		Timeout:     time.Hour,
-		MaxRefresh:  time.Hour,
-		IdentityKey: identityKey,
-		Authenticator: func(c *gin.Context) (interface{}, error) {
-			var loginVals loginDTO
-			if err := c.ShouldBind(&loginVals); err != nil {
-				return "", jwt.ErrMissingLoginValues
-			}
-			user, err := queries.GetUserByUsernameAndPassword(c, data.GetUserByUsernameAndPasswordParams{Username: loginVals.Username, Password: loginVals.Password})
-
-			if err != nil {
-				return nil, jwt.ErrFailedAuthentication
-			}
-			return user, nil
+func GenerateJWT(userID string) (string, error) {
+	claims := CustomClaims{
+		UserID: 1,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // 1 day expiration
+			Issuer:    "your-issuer",
 		},
-		PayloadFunc: func(d interface{}) jwt.MapClaims {
-			if v, ok := d.(data.GetUserByUsernameAndPasswordRow); ok {
-				println(v.Username)
-				return jwt.MapClaims{
-					identityKey: v.ID,
-					"username":  v.Username,
-				}
-			}
-			return jwt.MapClaims{}
-		},
-		LoginResponse: func(c *gin.Context, code int, token string, expire time.Time) {
-			c.SetCookie("jwt", token, 3600, "/", "", false, true)
-
-			c.JSON(http.StatusOK, gin.H{
-				"code":   http.StatusOK,
-				"token":  token,
-				"expire": expire.Format(time.RFC3339),
-			})
-		},
-		IdentityHandler: func(c *gin.Context) interface{} {
-			claims := jwt.ExtractClaims(c)
-			return int64(claims[identityKey].(float64))
-		},
-		Authorizator: func(data interface{}, c *gin.Context) bool {
-			if v, ok := data.(int64); ok && v == 1 {
-				return true
-			}
-			return false
-		},
-		Unauthorized: func(c *gin.Context, code int, message string) {
-			c.JSON(code, gin.H{
-				"code":    code,
-				"message": message,
-			})
-		},
-		// TokenLookup is a string in the form of "<source>:<name>" that is used
-		// to extract token from the request.
-		// Optional. Default value "header:Authorization".
-		// Possible values:
-		// - "header:<name>"
-		// - "query:<name>"
-		// - "cookie:<name>"
-		// - "param:<name>"
-		TokenLookup: "header: Authorization, query: token, cookie: jwt",
-		// TokenLookup: "query:token",
-		// TokenLookup: "cookie:token",
-
-		// TokenHeadName is a string in the header. Default value is "Bearer"
-		TokenHeadName: "Bearer",
-
-		// TimeFunc provides the current time. You can override it to use another time value. This is useful for testing or if your server uses a different time zone than your tokens.
-		TimeFunc: time.Now,
-	})
-	if err != nil {
-		log.Fatal("Unable to initialize JWT Auth Middleware")
 	}
-	return middleware
 
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(secretKey)
 }
-func AuthPing(c *gin.Context) {
-	claims := jwt.ExtractClaims(c)
-	user, _ := c.Get(identityKey)
-	c.JSON(200, gin.H{
-		"text":     "Pong",
-		"userID":   claims[identityKey],
-		"userName": user.(*User).id,
+func VerifyJWT(tokenString string) (*CustomClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		// Validate the algorithm (optional)
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return secretKey, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, fmt.Errorf("invalid token")
+}
+
+func (h *Security) HandleBearerAuthCookie(ctx context.Context, operationName string, t api.BearerAuthCookie) (context.Context, error) {
+
+	claims, err := VerifyJWT(t.GetAPIKey())
+	if err != nil {
+		return nil, err
+	}
+	ctx = context.WithValue(ctx, "user_id", int64(claims.UserID))
+	return ctx, nil
+}
+func (h *Security) HandleBearerAuthHeader(ctx context.Context, operationName string, t api.BearerAuthHeader) (context.Context, error) {
+
+	claims, err := VerifyJWT(t.GetToken())
+	if err != nil {
+		return nil, err
+	}
+	ctx = context.WithValue(ctx, "user_id", int64(claims.UserID))
+	return ctx, nil
+}
+
+func (h *Handler) LoginPost(ctx context.Context, req *api.UserCredentials) (api.LoginPostRes, error) {
+	user, err := qs.GetUserByUsernameAndPassword(ctx, data.GetUserByUsernameAndPasswordParams{Username: req.Username, Password: req.Password})
+
+	if err != nil {
+		return nil, errors.New("Incorrect credentials")
+	}
+	jwt, err := GenerateJWT(strconv.Itoa(int(user.ID)))
+	if err != nil {
+		resp := api.LoginPostUnauthorizedApplicationJSON("Wrong credentials.")
+		return &resp, errors.New("Incorrect credentials")
+	}
+	c := http.Cookie{
+		Name:     "jwt",
+		Value:    url.QueryEscape(jwt),
+		MaxAge:   3600,
+		Path:     "/",
+		Domain:   "",
+		SameSite: http.SameSiteLaxMode,
+		Secure:   false,
+		HttpOnly: true,
+	}
+	return &api.LoginSuccessHeaders{
+		SetCookie: c.String(), Response: api.LoginSuccess{Token: jwt},
+	}, nil
+}
+
+func (h *Handler) RegisterPost(ctx context.Context, req *api.RegisterPostReq) (api.RegisterPostRes, error) {
+	_, err := qs.AddUser(ctx, data.AddUserParams{Username: req.Username, Displayname: req.Username, Password: req.Password})
+
+	if err != nil {
+		println(err)
+		return nil, errors.New("Db insertion error")
+	}
+	return &api.RegisterPostOK{}, nil
+}
+
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Set CORS headers
+		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// Handle preflight requests (OPTIONS)
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		log.Printf("Method: %s, Path: %s", r.Method, r.URL.String())
+		// Pass to the next handler if it's not a preflight request
+		next.ServeHTTP(w, r)
 	})
 }

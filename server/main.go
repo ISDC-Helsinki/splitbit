@@ -1,170 +1,119 @@
 package main
 
 import (
-	_ "embed"
-	"fmt"
+	"context"
 	"log"
 	"net/http"
-	"strconv"
-	"time"
+	"os"
 
-	jwt "github.com/appleboy/gin-jwt/v2"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	"isdc-helsinki.fi/splitbit/server/data"
-	// "io"
-	// "github.com/otiai10/gosseract/v2"
+	"isdc.fi/splitbit/server/api"
+	"isdc.fi/splitbit/server/data"
 )
 
-//go:embed schema.sql
-var ddl string
+//go:generate go run github.com/sqlc-dev/sqlc/cmd/sqlc@latest generate
+//go:generate go run github.com/ogen-go/ogen/cmd/ogen@latest --target api --clean ../openapi.yml
+
+var qs *data.Queries
+
+type Handler struct {
+	api.UnimplementedHandler // automatically implement all methods by embedding a struct
+}
+
+func (h *Handler) GetPing(ctx context.Context) (*api.PongResponse, error) {
+	return &api.PongResponse{Message: "value"}, nil
+}
+
+func (h *Handler) GroupsGet(ctx context.Context) ([]api.Group, error) {
+	g, _ := qs.GetGroupsOfMember(ctx, ctx.Value("user_id").(int64))
+
+	resp := make([]api.Group, len(g))
+	// Convert each database Group to API Group
+	for i, dbGroup := range g {
+		resp[i] = api.Group{
+			ID:   int(dbGroup.ID),
+			Name: dbGroup.Name,
+		}
+	}
+	return resp, nil
+}
+
+func (h *Handler) GroupsPost(ctx context.Context, req *api.GroupsPostReq) (int, error) {
+	gid, _ := qs.AddGroup(ctx, req.Name)
+
+	return int(gid), nil
+}
+
+func (h *Handler) GroupsNonauthedGet(ctx context.Context) ([]api.Group, error) {
+	g, _ := qs.GetGroupsOfMember(ctx, 1)
+	resp := make([]api.Group, len(g))
+	// Convert each database Group to API Group
+	for i, v := range g {
+		resp[i] = api.Group{
+			ID:   int(v.ID),
+			Name: v.Name,
+		}
+	}
+	return resp, nil
+}
+
+func (h *Handler) GroupsIDGet(ctx context.Context, params api.GroupsIDGetParams) (*api.GroupOverview, error) {
+	// TODO task #4
+	return nil, nil
+}
+
+func (h *Handler) GroupsIDMembersPost(ctx context.Context, req *api.GroupsIDMembersPostReq, params api.GroupsIDMembersPostParams) error {
+	qs.AddMemberToGroup(ctx, data.AddMemberToGroupParams{GroupID: int64(params.ID), MemberID: int64(req.MemberID)})
+	return nil
+}
+
+func (h *Handler) GroupsIDItemsGet(ctx context.Context, params api.GroupsIDItemsGetParams) ([]api.Item, error) {
+	g, _ := qs.GetItemsOfGroup(ctx, int64(params.ID))
+
+	resp := make([]api.Item, len(g))
+	for i, v := range g {
+		resp[i] = api.Item{
+			ID:        int(v.ID),
+			Timestamp: int(v.Timestamp),
+			Name:      v.Name,
+			Price:     v.Price,
+			AuthorID:  int(v.AuthorID),
+			GroupID:   int(v.GroupID),
+		}
+	}
+	return resp, nil
+}
+
+func (h *Handler) GroupsIDItemsPost(ctx context.Context, req *api.Item, params api.GroupsIDItemsPostParams) (int, error) {
+	g, _ := qs.AddItemToGroup(ctx, data.AddItemToGroupParams{
+		Name:      req.Name,
+		Timestamp: int64(req.Timestamp),
+		Price:     req.Price,
+		GroupID:   int64(params.ID),
+		AuthorID:  int64(req.AuthorID),
+	})
+
+	return int(g), nil
+}
 
 func main() {
+	// Create service instance.
 
 	db := setupDB()
 
-	qs := data.New(db) // qs stands for queries
-
-	r := gin.Default()
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"}, // Your frontend URL
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,           // Allow cookies to be sent
-		MaxAge:           12 * time.Hour, // How long the results of a preflight request can be cached
-	}))
-	authMiddleware := createAuthMiddleware(qs)
-	errInit := authMiddleware.MiddlewareInit()
-	if errInit != nil {
-		log.Fatal("authMiddleware.MiddlewareInit() Error:" + errInit.Error())
+	qs = data.New(db) // qs stands for queries
+	service := &Handler{}
+	sec := &Security{}
+	// Create generated server.
+	srv, err := api.NewServer(service, sec)
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	r.POST("/login", authMiddleware.LoginHandler)
-	r.POST("/register", func(c *gin.Context) {
-		var dto struct {
-			Username string `json:"username"`
-			Password string `json:"password"`
-		}
-		if err := c.BindJSON(&dto); err != nil {
-			c.JSON(400, gin.H{"error": "Invalid request body"})
-			return
-		}
-		id, err := qs.AddUser(c, data.AddUserParams{Username: dto.Username, Displayname: dto.Username, Password: dto.Password})
-
-		if err != nil {
-			println(err)
-			c.JSON(400, gin.H{"error": "Error inserting user to db"})
-			return
-		}
-		c.JSON(200, id)
-	})
-
-	// Grouping routes that now use authentication
-	a := r.Group("/", authMiddleware.MiddlewareFunc())
-
-	a.GET("/groups", func(c *gin.Context) {
-		claims := jwt.ExtractClaims(c)
-		g, _ := qs.GetGroupsOfMember(c, claims["id"].(int64))
-		c.JSON(http.StatusOK, g)
-	})
-
-	r.GET("/groups-nonauthed", func(c *gin.Context) {
-		fmt.Print(c.Cookie("jwt"))
-		g, err := qs.GetGroupsAll(c)
-		if err != nil {
-			c.JSON(500, gin.H{"error": "Error fetching groups from db"})
-		}
-		c.JSON(http.StatusOK, g)
-	})
-
-	r.POST("/groups", func(c *gin.Context) {
-		var dto struct {
-			Name string `json:"name"`
-		}
-		if err := c.BindJSON(&dto); err != nil {
-			c.JSON(400, gin.H{"error": "Invalid request body"})
-			return
-		}
-
-		g, _ := qs.AddGroup(c, dto.Name)
-		c.JSON(http.StatusOK, g)
-	})
-
-	r.GET("/groups/:id/items", func(c *gin.Context) {
-		id, _ := strconv.Atoi(c.Param("id"))
-		g, _ := qs.GetItemsOfGroup(c, int64(id))
-
-		c.JSON(http.StatusOK, g)
-	})
-
-	r.POST("/groups/:id/items", func(c *gin.Context) {
-		id, _ := strconv.Atoi(c.Param("id"))
-		var dto struct {
-			Name      string  `json:"name"`
-			Timestamp int64   `json:"timestamp"`
-			Price     float64 `json:"price"`
-			Member_id int64   `json:"member_id"`
-		}
-
-		if err := c.BindJSON(&dto); err != nil {
-			c.JSON(400, gin.H{"error": "Invalid request body"})
-			return
-		}
-
-		item_id, err := qs.AddItemToGroup(c, data.AddItemToGroupParams{
-			Name:      dto.Name,
-			Timestamp: dto.Timestamp,
-			Price:     dto.Price,
-			GroupID:   int64(id),
-			AuthorID:  dto.Member_id,
-		})
-
-		if err != nil {
-			print(err)
-			c.JSON(400, gin.H{"error": "Error inserting to db"})
-		}
-		c.JSON(200, item_id)
-	})
-
-	r.GET("/groups/:id/members", func(c *gin.Context) {
-		id, _ := strconv.Atoi(c.Param("id"))
-		m, err := qs.GetMembersOfGroup(c, int64(id))
-		if err != nil {
-			println(err)
-		}
-		c.JSON(200, m)
-	})
-
-	r.POST("/groups/:id/members", func(c *gin.Context) {
-		id, _ := strconv.Atoi(c.Param("id"))
-		var dto struct {
-			MemberID int `json:"member_id"`
-		}
-		if err := c.BindJSON(&dto); err != nil {
-			c.JSON(400, gin.H{"error": "Invalid request body"})
-			return
-		}
-		err := qs.AddMemberToGroup(c, data.AddMemberToGroupParams{GroupID: int64(id), MemberID: int64(dto.MemberID)})
-		if err != nil {
-			c.JSON(404, gin.H{"error": "Could not add member"})
-			return
-		}
-		c.Status(200)
-	})
-
-	// Demo of the ocr functionality
-	// r.POST("/receipt", func(c *gin.Context) {
-	// 	file, _ := c.FormFile("file")
-	// 	log.Println(file.Filename)
-	// 	file_handle, _ := file.Open()
-	// 	file_bytes, _ := io.ReadAll(file_handle)
-	// 	client := gosseract.NewClient()
-	// 	defer client.Close()
-	// 	client.SetImageFromBytes(file_bytes)
-	// 	text, _ := client.Text()
-	// 	c.JSON(200, text)
-	// })
-
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+        port := os.Getenv("SPLITBIT_PORT")
+	if port == "" {
+                port = ":8080"
+	}
+	log.Printf("\033[32mSplitBit server has started on port %s\033[m\n", port)
+	if err := http.ListenAndServe(port, corsMiddleware(srv)); err != nil {
+		log.Fatal(err)
+	}
 }

@@ -1,0 +1,4 @@
+server/api
+server/data.db
+server/server
+web/src/lib/api/schema.ts
