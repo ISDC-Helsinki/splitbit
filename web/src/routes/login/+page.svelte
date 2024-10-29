@@ -92,18 +92,23 @@
     margin: auto;
     padding: 3rem 4rem;
     height: fit-content;
-    background: #fff;
     justify-content: center;
     border-radius: 0.8rem;
+    background-color: rgb(var(--m3-scheme-surface-container-lowest));
     div {
       margin-bottom: 0.5rem;
     }
+  }
+  h1 {
+    text-align: center;
   }
   main {
     height: 100%;
     display: flex;
   }
-  img {
-    filter: invert(1);
+  @media (prefers-color-scheme: light) {
+    img {
+      filter: invert(1);
+    }
   }
 </style>
