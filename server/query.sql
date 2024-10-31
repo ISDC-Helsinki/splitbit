@@ -24,3 +24,14 @@ SELECT id, username, displayName FROM members JOIN member_groups ON member_group
 
 -- name: AddMemberToGroup :exec
 INSERT INTO member_groups (group_id, member_id) VALUES (?, ?);
+
+-- name: GetNetAmountForUserInGroup :one
+SELECT 
+    SUM(CASE 
+            WHEN author_id = ? THEN -price 
+            ELSE price 
+        END) AS net_amount
+FROM 
+    items
+WHERE 
+    group_id = ?;

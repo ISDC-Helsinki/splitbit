@@ -7,6 +7,7 @@ package data
 
 import (
 	"context"
+	"database/sql"
 )
 
 const addGroup = `-- name: AddGroup :one
@@ -207,6 +208,30 @@ func (q *Queries) GetMembersOfGroup(ctx context.Context, groupID int64) ([]GetMe
 		return nil, err
 	}
 	return items, nil
+}
+
+const getNetAmountForUserInGroup = `-- name: GetNetAmountForUserInGroup :one
+SELECT 
+    SUM(CASE 
+            WHEN author_id = ? THEN -price 
+            ELSE price 
+        END) AS net_amount
+FROM 
+    items
+WHERE 
+    group_id = ?
+`
+
+type GetNetAmountForUserInGroupParams struct {
+	AuthorID int64 `json:"author_id"`
+	GroupID  int64 `json:"group_id"`
+}
+
+func (q *Queries) GetNetAmountForUserInGroup(ctx context.Context, arg GetNetAmountForUserInGroupParams) (sql.NullFloat64, error) {
+	row := q.db.QueryRowContext(ctx, getNetAmountForUserInGroup, arg.AuthorID, arg.GroupID)
+	var net_amount sql.NullFloat64
+	err := row.Scan(&net_amount)
+	return net_amount, err
 }
 
 const getUserByUsernameAndPassword = `-- name: GetUserByUsernameAndPassword :one

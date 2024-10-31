@@ -113,9 +113,15 @@ components:
           type: integer
         name:
           type: string
+        noItems:
+          type: boolean
+        amountOwed:
+          type: number
       required:
         - id
         - name
+        - noItems
+        - amountOwed
     Item:
       type: object
       properties:
