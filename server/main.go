@@ -29,9 +29,22 @@ func (h *Handler) GroupsGet(ctx context.Context) ([]api.Group, error) {
 	resp := make([]api.Group, len(g))
 	// Convert each database Group to API Group
 	for i, dbGroup := range g {
+
+		params := data.GetNetAmountForUserInGroupParams{
+			GroupID:  dbGroup.ID,
+			AuthorID: ctx.Value("user_id").(int64),
+		}
+
+		amountOwed, err := qs.GetNetAmountForUserInGroup(ctx, params)
+		if err != nil {
+			return nil, err
+		}
+
 		resp[i] = api.Group{
-			ID:   int(dbGroup.ID),
-			Name: dbGroup.Name,
+			ID:         int(dbGroup.ID),
+			Name:       dbGroup.Name,
+			NoItems:    !amountOwed.Valid,
+			AmountOwed: amountOwed.Float64,
 		}
 	}
 	return resp, nil
@@ -108,9 +121,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-        port := os.Getenv("SPLITBIT_PORT")
+	port := os.Getenv("SPLITBIT_PORT")
 	if port == "" {
-                port = ":8080"
+		port = ":8080"
 	}
 	log.Printf("\033[32mSplitBit server has started on port %s\033[m\n", port)
 	if err := http.ListenAndServe(port, corsMiddleware(srv)); err != nil {
