@@ -77,6 +77,38 @@ func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) (int64, error)
 	return id, err
 }
 
+const getFriendsOfUser = `-- name: GetFriendsOfUser :many
+SELECT id, username, displayname, password FROM members
+`
+
+func (q *Queries) GetFriendsOfUser(ctx context.Context) ([]Member, error) {
+	rows, err := q.db.QueryContext(ctx, getFriendsOfUser)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Member
+	for rows.Next() {
+		var i Member
+		if err := rows.Scan(
+			&i.ID,
+			&i.Username,
+			&i.Displayname,
+			&i.Password,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getGroupsAll = `-- name: GetGroupsAll :many
 SELECT id, name FROM groups
 `
