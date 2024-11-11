@@ -77,6 +77,42 @@ func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) (int64, error)
 	return id, err
 }
 
+const getFriendsOfUser = `-- name: GetFriendsOfUser :many
+SELECT mg2.member_id, COUNT(mg1.group_id) AS common_group_count
+FROM member_groups mg1
+INNER JOIN member_groups mg2 ON mg1.group_id = mg2.group_id
+WHERE mg1.member_id = ? AND mg2.member_id <> 3
+GROUP BY mg2.member_id
+`
+
+type GetFriendsOfUserRow struct {
+	MemberID         int64 `json:"member_id"`
+	CommonGroupCount int64 `json:"common_group_count"`
+}
+
+func (q *Queries) GetFriendsOfUser(ctx context.Context, memberID int64) ([]GetFriendsOfUserRow, error) {
+	rows, err := q.db.QueryContext(ctx, getFriendsOfUser, memberID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetFriendsOfUserRow
+	for rows.Next() {
+		var i GetFriendsOfUserRow
+		if err := rows.Scan(&i.MemberID, &i.CommonGroupCount); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getGroupsAll = `-- name: GetGroupsAll :many
 SELECT id, name FROM groups
 `
