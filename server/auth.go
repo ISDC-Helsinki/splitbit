@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -24,12 +23,12 @@ type CustomClaims struct {
 
 var secretKey = []byte("secret key")
 
-func GenerateJWT(userID string) (string, error) {
+func GenerateJWT(userID int) (string, error) {
 	claims := CustomClaims{
-		UserID: 1,
+		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // 1 day expiration
-			Issuer:    "your-issuer",
+			Issuer:    "splitbit",
 		},
 	}
 
@@ -81,7 +80,7 @@ func (h *Handler) LoginPost(ctx context.Context, req *api.UserCredentials) (api.
 	if err != nil {
 		return nil, errors.New("Incorrect credentials")
 	}
-	jwt, err := GenerateJWT(strconv.Itoa(int(user.ID)))
+	jwt, err := GenerateJWT(int(user.ID))
 	if err != nil {
 		resp := api.LoginPostUnauthorizedApplicationJSON("Wrong credentials.")
 		return &resp, errors.New("Incorrect credentials")
