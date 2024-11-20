@@ -22,15 +22,16 @@ func (q *Queries) AddGroup(ctx context.Context, name string) (int64, error) {
 }
 
 const addItemToGroup = `-- name: AddItemToGroup :one
-INSERT INTO items (name, timestamp, price, group_id, author_id) VALUES (?, ?, ?, ?, ?) RETURNING id
+INSERT INTO items (name, timestamp, price, group_id, author_id, reimbursement) VALUES (?, ?, ?, ?, ?, ?) RETURNING id
 `
 
 type AddItemToGroupParams struct {
-	Name      string  `json:"name"`
-	Timestamp int64   `json:"timestamp"`
-	Price     float64 `json:"price"`
-	GroupID   int64   `json:"group_id"`
-	AuthorID  int64   `json:"author_id"`
+	Name          string       `json:"name"`
+	Timestamp     int64        `json:"timestamp"`
+	Price         float64      `json:"price"`
+	GroupID       int64        `json:"group_id"`
+	AuthorID      int64        `json:"author_id"`
+	Reimbursement sql.NullBool `json:"reimbursement"`
 }
 
 func (q *Queries) AddItemToGroup(ctx context.Context, arg AddItemToGroupParams) (int64, error) {
@@ -40,6 +41,7 @@ func (q *Queries) AddItemToGroup(ctx context.Context, arg AddItemToGroupParams) 
 		arg.Price,
 		arg.GroupID,
 		arg.AuthorID,
+		arg.Reimbursement,
 	)
 	var id int64
 	err := row.Scan(&id)
@@ -180,7 +182,7 @@ func (q *Queries) GetGroupsOfMember(ctx context.Context, memberID int64) ([]GetG
 }
 
 const getItemsOfGroup = `-- name: GetItemsOfGroup :many
-SELECT id, timestamp, name, price, author_id, group_id FROM items WHERE group_id = ? ORDER BY timestamp DESC
+SELECT id, timestamp, name, price, author_id, group_id, reimbursement FROM items WHERE group_id = ? ORDER BY timestamp DESC
 `
 
 func (q *Queries) GetItemsOfGroup(ctx context.Context, groupID int64) ([]Item, error) {
@@ -199,6 +201,7 @@ func (q *Queries) GetItemsOfGroup(ctx context.Context, groupID int64) ([]Item, e
 			&i.Price,
 			&i.AuthorID,
 			&i.GroupID,
+			&i.Reimbursement,
 		); err != nil {
 			return nil, err
 		}

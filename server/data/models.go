@@ -4,18 +4,23 @@
 
 package data
 
+import (
+	"database/sql"
+)
+
 type Group struct {
 	ID   int64  `json:"id"`
 	Name string `json:"name"`
 }
 
 type Item struct {
-	ID        int64   `json:"id"`
-	Timestamp int64   `json:"timestamp"`
-	Name      string  `json:"name"`
-	Price     float64 `json:"price"`
-	AuthorID  int64   `json:"author_id"`
-	GroupID   int64   `json:"group_id"`
+	ID            int64        `json:"id"`
+	Timestamp     int64        `json:"timestamp"`
+	Name          string       `json:"name"`
+	Price         float64      `json:"price"`
+	AuthorID      int64        `json:"author_id"`
+	GroupID       int64        `json:"group_id"`
+	Reimbursement sql.NullBool `json:"reimbursement"`
 }
 
 type Member struct {

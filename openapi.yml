@@ -140,6 +140,8 @@ components:
         group_id:
           # readOnly: true # TODO same as above, untill https://github.com/ogen-go/ogen/issues/986 gets implemented
           type: integer
+        reimbursement:
+          type: boolean
       required:
         - id
         - timestamp

@@ -35,9 +35,9 @@ curl_post "/groups/1/members" '{"member_id":3}' "$AUTH_HEADER"
 timestamp=$(date +%s)
 
 # group_id will be ignored because the group it really gets added to is defined with path params
-curl_post "/groups/1/items" "{\"id\":0, \"name\":\"eggs\", \"price\":12.12, \"author_id\":1, \"group_id\":0, \"timestamp\":$timestamp}" "$AUTH_HEADER"
-curl_post "/groups/1/items" "{\"id\":0, \"name\":\"art\", \"price\":5.65, \"author_id\":1, \"group_id\":0, \"timestamp\":$timestamp}" "$AUTH_HEADER"
-curl_post "/groups/1/items" "{\"id\":0, \"name\":\"mice\", \"price\":9.65, \"author_id\":2,\"group_id\":0,  \"timestamp\":$timestamp}" "$AUTH_HEADER"
+curl_post "/groups/1/items" "{\"id\":0, \"name\":\"eggs\", \"price\":12.12, \"author_id\":1, \"group_id\":0, \"timestamp\":$timestamp, \"reimbursement\": false}" "$AUTH_HEADER"
+curl_post "/groups/1/items" "{\"id\":0, \"name\":\"art\", \"price\":5.65, \"author_id\":1, \"group_id\":0, \"timestamp\":$timestamp, \"reimbursement\": true}" "$AUTH_HEADER"
+curl_post "/groups/1/items" "{\"id\":0, \"name\":\"mice\", \"price\":9.65, \"author_id\":2,\"group_id\":0,  \"timestamp\":$timestamp, \"reimbursement\": false}" "$AUTH_HEADER"
 
 # Second batch
 curl_post "/register" '{"username":"jan", "password":"jan"}'
@@ -54,6 +54,6 @@ curl_post "/groups/2/members" '{"member_id":6}' "$AUTH_HEADER"
 
 # Items for group 2
 timestamp=$(date +%s)
-curl_post "/groups/2/items" "{\"id\":0,\"name\":\"mayo\", \"price\":48.12, \"author_id\":4, \"group_id\":0, \"timestamp\":$timestamp}" "$AUTH_HEADER"
-curl_post "/groups/2/items" "{\"id\":0,\"name\":\"laptop\", \"price\":59.65, \"author_id\":5, \"group_id\":0, \"timestamp\":$timestamp}" "$AUTH_HEADER"
-curl_post "/groups/2/items" "{\"id\":0,\"name\":\"pc\", \"price\":339.65, \"author_id\":4, \"group_id\":0, \"timestamp\":$timestamp}" "$AUTH_HEADER"
+curl_post "/groups/2/items" "{\"id\":0,\"name\":\"mayo\", \"price\":48.12, \"author_id\":4, \"group_id\":0, \"timestamp\":$timestamp, \"reimbursement\": true}" "$AUTH_HEADER"
+curl_post "/groups/2/items" "{\"id\":0,\"name\":\"laptop\", \"price\":59.65, \"author_id\":5, \"group_id\":0, \"timestamp\":$timestamp, \"reimbursement\": false}" "$AUTH_HEADER"
+curl_post "/groups/2/items" "{\"id\":0,\"name\":\"pc\", \"price\":339.65, \"author_id\":4, \"group_id\":0, \"timestamp\":$timestamp, \"reimbursement\": false}" "$AUTH_HEADER"
