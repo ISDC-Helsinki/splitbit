@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"log"
 	"net/http"
 	"os"
@@ -98,11 +99,12 @@ func (h *Handler) GroupsIDItemsGet(ctx context.Context, params api.GroupsIDItems
 
 func (h *Handler) GroupsIDItemsPost(ctx context.Context, req *api.Item, params api.GroupsIDItemsPostParams) (int, error) {
 	g, _ := qs.AddItemToGroup(ctx, data.AddItemToGroupParams{
-		Name:      req.Name,
-		Timestamp: int64(req.Timestamp),
-		Price:     req.Price,
-		GroupID:   int64(params.ID),
-		AuthorID:  int64(req.AuthorID),
+		Name:          req.Name,
+		Timestamp:     int64(req.Timestamp),
+		Price:         req.Price,
+		GroupID:       int64(params.ID),
+		AuthorID:      int64(req.AuthorID),
+		Reimbursement: sql.NullBool{Bool: req.Reimbursement.Value, Valid: req.Reimbursement.Set},
 	})
 
 	return int(g), nil

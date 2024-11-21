@@ -24,6 +24,7 @@ CREATE TABLE items ( --bs: medium
         price REAL NOT NULL, --bs: num; 1to200
         author_id INTEGER NOT NULL, --bs: rel
         group_id INTEGER NOT NULL, --bs: rel
+        reimbursement BOOLEAN DEFAULT 0, 
         FOREIGN KEY (group_id) REFERENCES groups (id),
         FOREIGN KEY (author_id) REFERENCES members (id)
 );

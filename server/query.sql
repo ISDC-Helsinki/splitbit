@@ -8,7 +8,7 @@ SELECT * FROM groups;
 SELECT * FROM items WHERE group_id = ? ORDER BY timestamp DESC;
 
 -- name: AddItemToGroup :one
-INSERT INTO items (name, timestamp, price, group_id, author_id) VALUES (?, ?, ?, ?, ?) RETURNING id;
+INSERT INTO items (name, timestamp, price, group_id, author_id, reimbursement) VALUES (?, ?, ?, ?, ?, ?) RETURNING id;
 
 -- name: GetUserByUsernameAndPassword :one
 SELECT id, username FROM members WHERE username = ? AND password = ?;
