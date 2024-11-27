@@ -8,7 +8,7 @@ servers:
 security:
   # This makes every route by default auth protected
   - BearerAuthHeader: [] # Authorization header
-  - BearerAuthCookie: [] # Token in cookie 
+  - BearerAuthCookie: [] # Token in cookie
 components:
   securitySchemes:
     BearerAuthHeader:
@@ -59,15 +59,16 @@ components:
                 type: string
               members:
                 type: array
-                $ref: "#/components/schemas/Member"
+                items:
+                  $ref: "#/components/schemas/Member"
               items:
                 type: array
-                $ref: "#/components/schemas/Item"
+                items:
+                  $ref: "#/components/schemas/Item"
               money_balance:
                 type: integer
             required:
               - name
-              - members
               - money_balance
   requestBodies:
     register:
@@ -93,7 +94,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Item'
+            $ref: "#/components/schemas/Item"
   schemas:
     UserCredentials:
       type: object
@@ -127,7 +128,7 @@ components:
       properties:
         id:
           type: integer
-          # readOnly: true # TODO unfortunately ogen doesn't support readOnly marker. But we want to reuse this schema for posting 
+          # readOnly: true # TODO unfortunately ogen doesn't support readOnly marker. But we want to reuse this schema for posting
           # as well as getting for simplicity. So for now, the convention would be to set the id to 0 as it will get ignored either way.
         timestamp:
           type: integer
