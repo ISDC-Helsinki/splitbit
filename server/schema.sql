@@ -1,6 +1,7 @@
 CREATE TABLE groups (
         id INTEGER NOT NULL PRIMARY KEY,
-        name TEXT NOT NULL 
+        name TEXT NOT NULL,
+        icon_name TEXT NOT NULL
 );
 
 CREATE TABLE members (

@@ -219,8 +219,16 @@ paths:
               properties:
                 name:
                   type: string
+                members:
+                  type: array
+                  items:
+                    type: integer
+                icon_name:
+                  type: string
               required:
                 - name
+                - members
+                - icon_name
       responses:
         "200":
           description: Added group successfully
@@ -268,6 +276,7 @@ paths:
             application/json:
               schema:
                 type: integer
+                
   /groups/{id}/members:
     parameters:
       - name: id
@@ -359,5 +368,5 @@ paths:
             application/json:
               schema:
                 type: integer
-                
+
 

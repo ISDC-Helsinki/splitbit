@@ -17,10 +17,13 @@ SELECT id, username FROM members WHERE username = ? AND password = ?;
 INSERT INTO members (username, displayName, password) VALUES (?, ?, ?) RETURNING id;
 
 -- name: AddGroup :one
-INSERT INTO groups (name) VALUES (?) RETURNING id;
+INSERT INTO groups (name, icon_name) VALUES (?, ?) RETURNING id;
 
 -- name: GetMembersOfGroup :many
 SELECT id, username, displayName FROM members JOIN member_groups ON member_groups.member_id = members.id WHERE group_id = ?;
 
 -- name: AddMemberToGroup :exec
 INSERT INTO member_groups (group_id, member_id) VALUES (?, ?);
+
+-- name: GetMemberFromUsername :one
+SELECT id, displayName FROM members WHERE username = ?;

@@ -38,8 +38,11 @@ func (h *Handler) GroupsGet(ctx context.Context) ([]api.Group, error) {
 }
 
 func (h *Handler) GroupsPost(ctx context.Context, req *api.GroupsPostReq) (int, error) {
-	gid, _ := qs.AddGroup(ctx, req.Name)
+	gid, _ := qs.AddGroup(ctx, data.AddGroupParams{Name: req.Name, IconName: req.IconName}) 
 
+	for _, member := range req.Members {
+		qs.AddMemberToGroup(ctx, data.AddMemberToGroupParams{GroupID: gid, MemberID: int64(member)})
+	}
 	return int(gid), nil
 }
 
@@ -95,6 +98,16 @@ func (h *Handler) GroupsIDItemsPost(ctx context.Context, req *api.Item, params a
 	return int(g), nil
 }
 
+func (h *Handler) MembersUsernameGet(ctx context.Context, params api.MembersUsernameGetParams) (api.MembersUsernameGetRes, error) {
+	g, _ := qs.GetMemberFromUsername(ctx, params.Username)
+
+	return api.MembersUsernameGetOK{
+		ID: int(g.username)
+		DisplayName: user.DisplayName,
+	}
+
+}
+
 func main() {
 	// Create service instance.
 
@@ -108,9 +121,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-        port := os.Getenv("SPLITBIT_PORT")
+	port := os.Getenv("SPLITBIT_PORT")
 	if port == "" {
-                port = ":8080"
+		port = ":8080"
 	}
 	log.Printf("\033[32mSplitBit server has started on port %s\033[m\n", port)
 	if err := http.ListenAndServe(port, corsMiddleware(srv)); err != nil {
