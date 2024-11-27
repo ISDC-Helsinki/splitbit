@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -71,8 +72,67 @@ func (h *Handler) GroupsNonauthedGet(ctx context.Context) ([]api.Group, error) {
 }
 
 func (h *Handler) GroupsIDGet(ctx context.Context, params api.GroupsIDGetParams) (*api.GroupOverview, error) {
-	// TODO task #4
-	return nil, nil
+	//IDs
+	g_id := int64(params.ID)
+	userid := ctx.Value("user_id").(int64)
+
+	//authorID
+	group, _ := qs.GetGroupByID(ctx, g_id)
+
+	// Fetch members of the group
+	members, _ := qs.GetMembersOfGroup(ctx, g_id)
+
+	var apiMembers []api.Member
+
+	for _, member := range members {
+		apiMembers = append(apiMembers, api.Member{
+			ID:   string(member.ID),
+			Name: member.Username,
+		})
+	}
+
+	// Fetch items of the group
+	items, _ := qs.GetItemsOfGroup(ctx, g_id)
+
+	var apiItems []api.Item
+
+	for _, item := range items {
+		apiItems = append(apiItems, api.Item{
+			ID:        int(item.ID),
+			Timestamp: int(item.Timestamp),
+			Name:      item.Name,
+			Price:     item.Price,
+			AuthorID:  int(item.AuthorID),
+			GroupID:   int(g_id),
+		})
+	}
+
+	// Calculate money balance for the group
+	netAmountParams := data.GetNetAmountForUserInGroupParams{
+		AuthorID: userid,
+		GroupID:  g_id,
+	}
+
+	netAmount, err := qs.GetNetAmountForUserInGroup(ctx, netAmountParams)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch net amount: %w", err)
+	}
+	var balance int
+
+	if netAmount.Valid {
+		balance = int(netAmount.Float64)
+	} else {
+		balance = 0
+	}
+
+	groupOverview := &api.GroupOverview{
+		Name:         group.Name,
+		Members:      apiMembers,
+		Items:        apiItems,
+		MoneyBalance: balance,
+	}
+
+	return groupOverview, nil
 }
 
 func (h *Handler) GroupsIDMembersPost(ctx context.Context, req *api.GroupsIDMembersPostReq, params api.GroupsIDMembersPostParams) error {
