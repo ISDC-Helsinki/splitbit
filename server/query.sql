@@ -42,3 +42,25 @@ FROM member_groups mg1
 INNER JOIN member_groups mg2 ON mg1.group_id = mg2.group_id
 WHERE mg1.member_id = ? AND mg2.member_id <> 3
 GROUP BY mg2.member_id;
+
+
+-- name: GetGroupByID :one
+SELECT 
+    id, 
+    name 
+FROM 
+    groups 
+WHERE 
+    id = ?;
+
+-- name: Expense_participants :many
+SELECT 
+    ep.member_id, 
+    i.name AS item_name, 
+    m.username, 
+    m.displayName
+FROM expense_participants ep
+JOIN items i ON ep.item_id = i.id
+JOIN members m ON ep.member_id = m.id
+WHERE ep.item_id = ?;
+

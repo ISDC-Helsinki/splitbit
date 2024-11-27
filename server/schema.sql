@@ -28,3 +28,11 @@ CREATE TABLE items ( --bs: medium
         FOREIGN KEY (group_id) REFERENCES groups (id),
         FOREIGN KEY (author_id) REFERENCES members (id)
 );
+
+CREATE TABLE expense_participants (
+    item_id INTEGER NOT NULL, -- Foreign key referencing the items table
+    member_id INTEGER NOT NULL, -- Foreign key referencing the members table
+    PRIMARY KEY (item_id, member_id), -- Composite primary key (ensures unique pairs)
+    FOREIGN KEY (item_id) REFERENCES items (id), -- Foreign key constraint to items table
+    FOREIGN KEY (member_id) REFERENCES members (id) -- Foreign key constraint to members table
+);
