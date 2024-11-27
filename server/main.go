@@ -86,11 +86,22 @@ func (h *Handler) GroupsIDGet(ctx context.Context, params api.GroupsIDGetParams)
 
 	for _, member := range members {
 		apiMembers = append(apiMembers, api.Member{
-			ID:   string(member.ID),
+			ID:   int(member.ID),
 			Name: member.Username,
 		})
 	}
+	// new schema EP added converting to of type memeber th query of Expense_participants
+	eps, _ := qs.Expense_participants(ctx, 1)
+	var ep_members []api.Member
 
+	for _, ep := range eps {
+		ep_members = append(ep_members, api.Member{
+			ID:          int(ep.MemberID),
+			Name:        ep.Username,
+			DisplayName: ep.Displayname,
+		})
+
+	}
 	// Fetch items of the group
 	items, _ := qs.GetItemsOfGroup(ctx, g_id)
 
@@ -104,6 +115,8 @@ func (h *Handler) GroupsIDGet(ctx context.Context, params api.GroupsIDGetParams)
 			Price:     item.Price,
 			AuthorID:  int(item.AuthorID),
 			GroupID:   int(g_id),
+			// The new participant list!!!!!!
+			Participants: ep_members,
 		})
 	}
 

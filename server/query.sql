@@ -53,3 +53,14 @@ FROM
 WHERE 
     id = ?;
 
+-- name: Expense_participants :many
+SELECT 
+    ep.member_id, 
+    i.name AS item_name, 
+    m.username, 
+    m.displayName
+FROM expense_participants ep
+JOIN items i ON ep.item_id = i.id
+JOIN members m ON ep.member_id = m.id
+WHERE ep.item_id = ?;
+

@@ -143,6 +143,12 @@ components:
           type: integer
         reimbursement:
           type: boolean
+        # New participant list should be returned from expense_participants schema
+        participants:
+          type: array
+          items:
+            $ref: "#/components/schemas/Member"
+
       required:
         - id
         - timestamp
@@ -154,7 +160,7 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
         name:
           type: string
         displayName:
