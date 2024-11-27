@@ -14,6 +14,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,10 +22,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewmodel.compose.viewModel
+import fi.isdc_helsinki.splitbit.client.models.UserCredentials
 
 @Composable
 fun LoginView(viewModel: LoginViewModel = viewModel()) {
@@ -39,9 +42,14 @@ fun LoginView(viewModel: LoginViewModel = viewModel()) {
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxSize()
         ) {
-            if (step == 0) {
+            if (step == -1) {
                 OutlinedTextField(serverUrl, { v -> serverUrl = v }, label = { Text("Server URL") })
-                Button(onClick = { step++ }) { Text("Next") }
+                Text(AnnotatedString("Connection failed"))
+                Button(onClick = { step = viewModel.checkServer(serverUrl.text) }) { Text("Next") }
+            }
+            else if (step == 0) {
+                OutlinedTextField(serverUrl, { v -> serverUrl = v }, label = { Text("Server URL") })
+                Button(onClick = { step = viewModel.checkServer(serverUrl.text) }) { Text("Next") }
             } else if (step > 0) {
                 OutlinedTextField(user, { v -> user = v }, label = { Text("Login") })
                 OutlinedTextField(password, { v -> password = v },
@@ -55,9 +63,19 @@ fun LoginView(viewModel: LoginViewModel = viewModel()) {
                         }
                     }
                     Button(onClick = {
-                        viewModel.login(AuthRequest(user.text,password.text))
+                        viewModel.login(UserCredentials(user.text,password.text))
+                        val id = g.encryptedSharedPreferences.getInt("userID", -1)
+                        println("id $id")
+                        if (id != -1) {
+                            g.navController.navigate("group")
+                        }
                     }) { Text("Login") }
                 }
+            }
+            val id = g.encryptedSharedPreferences.getInt("userID", -1)
+            println("id $id")
+            if (id != -1) {
+                g.navController.navigate("group")
             }
         }
     }
