@@ -53,3 +53,8 @@ FROM
 WHERE 
     id = ?;
 
+-- name: ArchiveGroup :exec
+UPDATE groups SET is_archived = TRUE WHERE id = ?;
+
+-- name: UnarchiveGroup :exec
+UPDATE groups SET is_archived = FALSE WHERE id = ?;
