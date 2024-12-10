@@ -170,6 +170,24 @@ func (h *Handler) GroupsIDItemsPost(ctx context.Context, req *api.Item, params a
 	return int(g), nil
 }
 
+func (h *Handler) DashboardGet(ctx context.Context) (r *api.DashboardGetOK, _ error) {
+	result := api.DashboardGetOK{
+		Name: api.OptString{
+			Value: "miau",
+			Set:   true,
+		},
+	}
+
+	optStr := api.OptString{
+		Value: "SEbastai",
+		Set:   true,
+	}
+
+	result.SetName(optStr)
+
+	return &result, nil
+}
+
 func main() {
 	// Create service instance.
 
