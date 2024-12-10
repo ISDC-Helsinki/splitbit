@@ -37,11 +37,17 @@ WHERE
     group_id = ?;
 
 -- name: GetFriendsOfUser :many
-SELECT mg2.member_id, COUNT(mg1.group_id) AS common_group_count
+SELECT 
+    mg2.member_id, 
+    m.username,
+    m.displayName, -- Adding the member's displayName from the members table
+    COUNT(mg1.group_id) AS common_group_count
 FROM member_groups mg1
 INNER JOIN member_groups mg2 ON mg1.group_id = mg2.group_id
+INNER JOIN members m ON mg2.member_id = m.id  -- Join with members to get displayName
 WHERE mg1.member_id = ? AND mg2.member_id != mg1.member_id
-GROUP BY mg2.member_id;
+GROUP BY mg2.member_id, m.displayName;  -- Group by member_id and displayName
+
 
 
 -- name: GetGroupByID :one

@@ -171,8 +171,31 @@ func (h *Handler) GroupsIDItemsPost(ctx context.Context, req *api.Item, params a
 }
 
 func (h *Handler) DashboardGet(ctx context.Context) (r *api.DashboardGetOK, _ error) {
+	//g_id := int64(params.ID)
+	userid := ctx.Value("user_id").(int64)
+
+	dbfriends, err := qs.GetFriendsOfUser(ctx, 3) //userid 3 has many friends, good example
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch net amount: %w", err)
+	}
+
+	var friends = []api.Member{}
+
+	for i, friend := range dbfriends {
+		fmt.Printf("Friend %d:\n", i+1)
+		fmt.Printf("  ID: %d\n", friend.MemberID)
+		fmt.Printf("  Name: %s\n", friend.Displayname)
+		fmt.Printf("  Common Groups: %d\n\n", friend.CommonGroupCount)
+		friends = append(friends, api.Member{
+			ID:          fmt.Sprintf("%d", friend.MemberID), // Assuming MemberID is int and ID should be string
+			Name:        friend.Username,                    // Assuming username is part of dbfriends
+			DisplayName: friend.Displayname,                 // Assuming Displayname is part of dbfriends
+		})
+	}
+
 	return &api.DashboardGetOK{
-		Name: "SEbastai", // Use a plain string
+		Name:    string(userid),
+		Friends: friends,
 	}, nil
 }
 
