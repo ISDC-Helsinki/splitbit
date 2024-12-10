@@ -177,8 +177,13 @@ paths:
                 properties:
                   name:
                     type: string
+                  friends:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Member"
                 required:
                   - name
+                  - friends
   /ping:
     get:
       security: []
