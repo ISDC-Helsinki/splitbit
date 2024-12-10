@@ -40,7 +40,7 @@ WHERE
 SELECT mg2.member_id, COUNT(mg1.group_id) AS common_group_count
 FROM member_groups mg1
 INNER JOIN member_groups mg2 ON mg1.group_id = mg2.group_id
-WHERE mg1.member_id = ? AND mg2.member_id <> 3
+WHERE mg1.member_id = ? AND mg2.member_id != mg1.member_id
 GROUP BY mg2.member_id;
 
 
