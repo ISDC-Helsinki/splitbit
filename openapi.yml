@@ -171,12 +171,14 @@ paths:
         "200":
           description: Dashboard information retrieved successfully
           content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    name:
-                      type: string
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                required:
+                  - name
   /ping:
     get:
       security: []

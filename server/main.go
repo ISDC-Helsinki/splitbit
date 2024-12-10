@@ -171,21 +171,9 @@ func (h *Handler) GroupsIDItemsPost(ctx context.Context, req *api.Item, params a
 }
 
 func (h *Handler) DashboardGet(ctx context.Context) (r *api.DashboardGetOK, _ error) {
-	result := api.DashboardGetOK{
-		Name: api.OptString{
-			Value: "miau",
-			Set:   true,
-		},
-	}
-
-	optStr := api.OptString{
-		Value: "SEbastai",
-		Set:   true,
-	}
-
-	result.SetName(optStr)
-
-	return &result, nil
+	return &api.DashboardGetOK{
+		Name: "SEbastai", // Use a plain string
+	}, nil
 }
 
 func main() {
