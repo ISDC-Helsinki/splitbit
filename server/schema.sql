@@ -1,6 +1,7 @@
 CREATE TABLE groups ( --bs: low
-        id INTEGER NOT NULL PRIMARY KEY,
-        name TEXT NOT NULL --bs: company
+    id INTEGER NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL, --bs: company
+    is_archived BOOLEAN NOT NULL DEFAULT 0 -- Indicates if the group is archived (0 = not archived, 1 = archived)
 );
 
 CREATE TABLE members ( --bs: low
