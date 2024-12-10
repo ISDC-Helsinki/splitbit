@@ -173,18 +173,20 @@ func (h *Handler) GroupsIDItemsPost(ctx context.Context, req *api.Item, params a
 func (h *Handler) GroupsIDArchivePost(ctx context.Context, params api.GroupsIDArchivePostParams) error {
 	groupID := int64(params.ID)
 
-	// Archive the group using the converted groupID
 	err := qs.ArchiveGroup(ctx, groupID)
 	if err != nil {
-		// If there is an error, return it with a meaningful message
 		return fmt.Errorf("failed to archive group: %v", err)
 	}
-
-	// Return nil if no error, indicating successful archiving
-	return nil // You can also return a success message here if needed
+	return nil
 }
 
 func (h *Handler) GroupsIDUnarchivePost(ctx context.Context, params api.GroupsIDUnarchivePostParams) error {
+	groupID := int64(params.ID)
+
+	err := qs.UnarchiveGroup(ctx, groupID)
+	if err != nil {
+		return fmt.Errorf("failed to unarchive group: %v", err)
+	}
 	return nil
 }
 

@@ -189,45 +189,7 @@ paths:
               type: integer
         responses:
           "200":
-            description: Group successfully unarchived
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    message:
-                      type: string
-                      example: "Group successfully unarchived"
-          "400":
-            description: Invalid group ID
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    error_message:
-                      type: string
-                      example: "Invalid group ID"
-          "404":
-            description: Group not found
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    error_message:
-                      type: string
-                      example: "Group not found"
-          "500":
-            description: Internal server error
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    error_message:
-                      type: string
-                      example: "Internal server error"
+            description: Group successfully archived
   /ping:
     get:
       security: []
