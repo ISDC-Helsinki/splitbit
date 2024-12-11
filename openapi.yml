@@ -189,6 +189,32 @@ paths:
                   - name
                   - friends
                   - active_groups
+  /groups/{id}/archive:
+    post:
+      summary: Archive a group
+      description: Marks the group with the specified ID as archived, preventing it from being highlighted on clients.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Group successfully archived
+  /groups/{id}/unarchive:
+      post:
+        summary: Unarchive a group
+        description: Marks the group with the specified ID as unarchived, making it visible again to clients.
+        parameters:
+          - name: id
+            in: path
+            required: true
+            schema:
+              type: integer
+        responses:
+          "200":
+            description: Group successfully archived
   /ping:
     get:
       security: []

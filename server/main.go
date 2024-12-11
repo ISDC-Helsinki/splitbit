@@ -228,6 +228,24 @@ func (h *Handler) DashboardGet(ctx context.Context) (r *api.DashboardGetOK, _ er
 		Friends:      friends,
 		ActiveGroups: active_groups,
 	}, nil
+func (h *Handler) GroupsIDArchivePost(ctx context.Context, params api.GroupsIDArchivePostParams) error {
+	groupID := int64(params.ID)
+
+	err := qs.ArchiveGroup(ctx, groupID)
+	if err != nil {
+		return fmt.Errorf("failed to archive group: %v", err)
+	}
+	return nil
+}
+
+func (h *Handler) GroupsIDUnarchivePost(ctx context.Context, params api.GroupsIDUnarchivePostParams) error {
+	groupID := int64(params.ID)
+
+	err := qs.UnarchiveGroup(ctx, groupID)
+	if err != nil {
+		return fmt.Errorf("failed to unarchive group: %v", err)
+	}
+	return nil
 }
 
 func main() {
