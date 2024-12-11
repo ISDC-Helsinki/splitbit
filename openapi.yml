@@ -164,6 +164,31 @@ components:
         - name
         - displayName
 paths:
+  /dashboard:
+    get:
+      summary: Get user dashboard information based on the user_id embedded inside jwt
+      responses:
+        "200":
+          description: Dashboard information retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  friends:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Member"
+                  active_groups:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Group"
+                required:
+                  - name
+                  - friends
+                  - active_groups
   /groups/{id}/archive:
     post:
       summary: Archive a group
