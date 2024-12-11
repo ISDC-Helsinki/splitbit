@@ -181,9 +181,14 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Member"
+                  active_groups:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Group"
                 required:
                   - name
                   - friends
+                  - active_groups
   /ping:
     get:
       security: []
