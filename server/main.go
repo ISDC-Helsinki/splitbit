@@ -170,6 +170,26 @@ func (h *Handler) GroupsIDItemsPost(ctx context.Context, req *api.Item, params a
 	return int(g), nil
 }
 
+func (h *Handler) GroupsIDArchivePost(ctx context.Context, params api.GroupsIDArchivePostParams) error {
+	groupID := int64(params.ID)
+
+	err := qs.ArchiveGroup(ctx, groupID)
+	if err != nil {
+		return fmt.Errorf("failed to archive group: %v", err)
+	}
+	return nil
+}
+
+func (h *Handler) GroupsIDUnarchivePost(ctx context.Context, params api.GroupsIDUnarchivePostParams) error {
+	groupID := int64(params.ID)
+
+	err := qs.UnarchiveGroup(ctx, groupID)
+	if err != nil {
+		return fmt.Errorf("failed to unarchive group: %v", err)
+	}
+	return nil
+}
+
 func main() {
 	// Create service instance.
 
