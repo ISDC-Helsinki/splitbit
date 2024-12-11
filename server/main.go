@@ -175,6 +175,7 @@ func (h *Handler) DashboardGet(ctx context.Context) (r *api.DashboardGetOK, _ er
 	userid := ctx.Value("user_id").(int64)
 
 	dbfriends, err := qs.GetFriendsOfUser(ctx, 3) //userid 3 has many friends, good example
+	//should be userid though.
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch net amount: %w", err)
 	}
@@ -193,9 +194,39 @@ func (h *Handler) DashboardGet(ctx context.Context) (r *api.DashboardGetOK, _ er
 		})
 	}
 
+	var active_groups = []api.Group{}
+
+	dbactive_groups, err := qs.GetActiveGroupsOfMemberAndAmountOwed(ctx, 3)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch net amount: %w", err)
+	}
+
+	for i, dbactive_group := range dbactive_groups {
+		fmt.Printf("Index: %d\n", i)
+		fmt.Printf("Group Name: %s\n", dbactive_group.GroupName)
+		fmt.Printf("Group ID: %d\n", dbactive_group.GroupID)
+		fmt.Printf("Net Amount: %f\n", dbactive_group.NetAmount) // Assuming NetAmount is a float or double
+		fmt.Printf("Member ID: %d\n", dbactive_group.MemberID)
+
+		// Type assertion for NetAmount
+		netAmount, ok := dbactive_group.NetAmount.(float64)
+		if !ok {
+			fmt.Println("Error: NetAmount is not a float64")
+			continue
+		}
+
+		active_groups = append(active_groups, api.Group{
+			ID:         int(dbactive_group.GroupID),
+			Name:       dbactive_group.GroupName,
+			NoItems:    false,
+			AmountOwed: netAmount,
+		})
+	}
+
 	return &api.DashboardGetOK{
-		Name:    string(userid),
-		Friends: friends,
+		Name:         string(userid),
+		Friends:      friends,
+		ActiveGroups: active_groups,
 	}, nil
 }
 

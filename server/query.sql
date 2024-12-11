@@ -1,6 +1,28 @@
 -- name: GetGroupsOfMember :many
 SELECT * FROM groups JOIN member_groups ON groups.id = member_groups.group_id WHERE member_groups.member_id = ?;
 
+-- name: GetActiveGroupsOfMember :many
+SELECT * FROM groups JOIN member_groups ON groups.id = member_groups.group_id WHERE member_groups.member_id = ?;
+
+-- name: GetActiveGroupsOfMemberAndAmountOwed :many
+SELECT 
+    g.id AS group_id,
+    g.name AS group_name,
+    mg.member_id,
+    COALESCE((SELECT SUM(CASE 
+                WHEN i.author_id = 1 THEN -i.price 
+                ELSE i.price 
+            END)
+     FROM items i
+     WHERE i.group_id = g.id), 0) AS net_amount
+FROM 
+    groups g
+JOIN 
+    member_groups mg 
+    ON g.id = mg.group_id
+WHERE 
+    mg.member_id = ?;
+
 -- name: GetGroupsAll :many
 SELECT * FROM groups;
 
