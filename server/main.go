@@ -170,6 +170,65 @@ func (h *Handler) GroupsIDItemsPost(ctx context.Context, req *api.Item, params a
 	return int(g), nil
 }
 
+func (h *Handler) DashboardGet(ctx context.Context) (r *api.DashboardGetOK, _ error) {
+	//g_id := int64(params.ID)
+	userid := ctx.Value("user_id").(int64)
+
+	dbfriends, err := qs.GetFriendsOfUser(ctx, 3) //userid 3 has many friends, good example
+	//should be userid though.
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch net amount: %w", err)
+	}
+
+	var friends = []api.Member{}
+
+	for i, friend := range dbfriends {
+		fmt.Printf("Friend %d:\n", i+1)
+		fmt.Printf("  ID: %d\n", friend.MemberID)
+		fmt.Printf("  Name: %s\n", friend.Displayname)
+		fmt.Printf("  Common Groups: %d\n\n", friend.CommonGroupCount)
+		friends = append(friends, api.Member{
+			ID:          fmt.Sprintf("%d", friend.MemberID), // Assuming MemberID is int and ID should be string
+			Name:        friend.Username,                    // Assuming username is part of dbfriends
+			DisplayName: friend.Displayname,                 // Assuming Displayname is part of dbfriends
+		})
+	}
+
+	var active_groups = []api.Group{}
+
+	dbactive_groups, err := qs.GetActiveGroupsOfMemberAndAmountOwed(ctx, 3)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch net amount: %w", err)
+	}
+
+	for i, dbactive_group := range dbactive_groups {
+		fmt.Printf("Index: %d\n", i)
+		fmt.Printf("Group Name: %s\n", dbactive_group.GroupName)
+		fmt.Printf("Group ID: %d\n", dbactive_group.GroupID)
+		fmt.Printf("Net Amount: %f\n", dbactive_group.NetAmount) // Assuming NetAmount is a float or double
+		fmt.Printf("Member ID: %d\n", dbactive_group.MemberID)
+
+		// Type assertion for NetAmount
+		netAmount, ok := dbactive_group.NetAmount.(float64)
+		if !ok {
+			fmt.Println("Error: NetAmount is not a float64")
+			continue
+		}
+
+		active_groups = append(active_groups, api.Group{
+			ID:         int(dbactive_group.GroupID),
+			Name:       dbactive_group.GroupName,
+			NoItems:    false,
+			AmountOwed: netAmount,
+		})
+	}
+
+	return &api.DashboardGetOK{
+		Name:         string(userid),
+		Friends:      friends,
+		ActiveGroups: active_groups,
+	}, nil
+}
 func (h *Handler) GroupsIDArchivePost(ctx context.Context, params api.GroupsIDArchivePostParams) error {
 	groupID := int64(params.ID)
 
