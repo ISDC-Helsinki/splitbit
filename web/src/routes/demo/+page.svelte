@@ -25,7 +25,7 @@
 </script>
 
 <svelte:head>
-  <title>M3 Svelte</title>
+  <title>SplitBit</title>
   <meta
     name="description"
     content="The home of Material 3 Svelte, a library for the M3 design system, with components, animations, and theming."

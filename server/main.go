@@ -228,6 +228,7 @@ func (h *Handler) DashboardGet(ctx context.Context) (r *api.DashboardGetOK, _ er
 		Friends:      friends,
 		ActiveGroups: active_groups,
 	}, nil
+}
 func (h *Handler) GroupsIDArchivePost(ctx context.Context, params api.GroupsIDArchivePostParams) error {
 	groupID := int64(params.ID)
 

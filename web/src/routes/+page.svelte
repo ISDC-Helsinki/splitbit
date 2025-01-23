@@ -103,8 +103,8 @@
 </script>
 
 <div class="main">
-  <div class="column">
-    <div class="groups-column">
+  <div class="panel">
+    <div class="column">
       <div>
         <h1>Overview</h1>
       </div>
@@ -159,8 +159,8 @@
     </div>
   </div>
 
-  <div class="right-panel">
-    <div class="groups-column">
+  <div class="panel">
+    <div class="column">
       <div class="top">
         <div>
           <h1>Latest expenses</h1>
@@ -180,7 +180,7 @@
       </div>
     </div>
 
-    <div class="groups-column">
+    <div class="column">
       <div class="top">
         <div>
           <h1>Your active groups are:</h1>
@@ -233,7 +233,7 @@
         </div>
       </div>
 
-      <div class="groups-column">
+      <div class="column">
         <div class="top">
           <div>
             <h1>Your archived groups are:</h1>
@@ -270,11 +270,11 @@
     gap: 15px;
   }
 
-  .groups-column {
+  .column {
     display: flex;
     flex-direction: column;
     border-radius: 10px;
-    background-color: gainsboro;
+    background-color: rgb(var(--m3-scheme-surface-container));
     padding: 15px;
   }
 
@@ -296,7 +296,7 @@
     gap: 15px;
   }
 
-  .right-panel {
+  .panel {
     display: flex;
     flex-direction: column;
     gap: 30px;
@@ -305,18 +305,8 @@
   .friends {
     width: 500px;
     border-radius: 10px;
-    background-color: gainsboro;
+    background-color: rgb(var(--m3-scheme-surface-container));
     padding: 15px;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .groups-column {
-      background-color: #2c2c2c;
-    }
-
-    .friends {
-      background-color: #2c2c2c;
-    }
   }
 
   .row {
@@ -332,11 +322,6 @@
     align-items: center;
   }
 
-  .column {
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
-  }
 
   .frame {
     border: 1px solid;
