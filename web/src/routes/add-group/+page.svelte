@@ -1,4 +1,5 @@
 <script lang="ts">
+  import api from "$lib/api/api";
   import Button from "$lib/buttons/Button.svelte";
   import TextFieldOutlined from "$lib/forms/TextFieldOutlined.svelte";
   import Icon from "$lib/misc/_icon.svelte";
@@ -9,27 +10,52 @@
   let src: string = "/tutorial/image.gif";
   let count: number = 0;
   let newMember: string = "";
-  let members: string[] = [];
+  let members: {id: number; name: string}[] = [];
 
   function handleClick() {
     count += 1;
   }
 
-  function addMember() {
-    if (newMember.trim()) {
-      members = [...members, newMember];
-      newMember = "";
+  async function addMember({}) {
+    const {
+      data, // only present if 2XX response
+      error, // only present if 4XX or 5XX response
+      response
+    } = await api.GET("/members/{username}", { params: { path: { username: newMember }} });
+    if (response.status != 200) {
+      console.log(response.status, response.statusText);
+      return;
     }
+    if (newMember.trim()) {
+      members = [...members, { id: data!.id, name: newMember }];
+      newMember = ""; 
+    }
+    return members;
   }
 
   function deleteMember(index: number) {
     members = members.filter((_, i) => i !== index);
   }
+
+  async function createGroup() {
+    const {
+      data, // only present if 2XX response
+      error, // only present if 4XX or 5XX response
+      response
+    } = await api.POST('/groups', { body: { name: name, members: members.map((x) => x.id), icon_name: ""} })
+    if (name.trim() && members.length > 0) {
+        //groupCreated = true;
+    } else {
+      alert("Enter a group name and add at least one member.");
+    }
+  }
 </script>
 
 <div class="container">
   <h1 style="text-align: center;">Create Group</h1>
-  <TextFieldOutlined name="Group name" />
+  <TextFieldOutlined 
+  bind:value={name}
+  name="Group name" />
   <h3 style="text-align: left;">Members</h3>
 
   <TextFieldOutlined
@@ -42,7 +68,7 @@
   <ul>
     {#each members as member, index}
       <li>
-        {member}
+        {member.name}
         <button type="button" on:click={() => deleteMember(index)} aria-label="Delete member">
           <Icon icon={close} />
         </button>
@@ -54,7 +80,7 @@
     <div class="spacer">
 
     </div>
-    <Button type="filled" >Create group</Button>
+    <Button type="filled" on:click={createGroup}>Create group</Button>
   
 </div>
 
