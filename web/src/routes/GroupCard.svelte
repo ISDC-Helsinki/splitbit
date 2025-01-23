@@ -91,7 +91,7 @@
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        background: linear-gradient(to bottom, rgba(0, 0, 0, 0) -10%, rgba(10, 10, 10, 10) 100%), url("/src/poolcover.jpg");
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0) -10%, rgba(10, 10, 10, 10) 100%), url("poolcover.jpg");
         background-size: cover;
         background-position: center;
         color: white; 

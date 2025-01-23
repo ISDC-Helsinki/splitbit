@@ -6,7 +6,7 @@
 <div class="card">
     <div class="left">
         <div class="profile-picture">
-            <img src="/src/poolcover.jpg" alt="profilepicture">
+            <img src="poolcover.jpg" alt="profilepicture">
         </div>
     </div>
 
