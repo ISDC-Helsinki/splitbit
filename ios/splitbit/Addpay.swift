@@ -20,6 +20,7 @@ struct Addpay: View {
     var groupMembers = ["Eetu", "Chris", "Jan"] // for debug purposes
     
     @State var paidForMembers: [Bool]
+    @State var selectedMember: String?
     
     init() {
             
@@ -37,24 +38,39 @@ struct Addpay: View {
                     Section(header: Text("Expense")) {
                         HStack {
                             Text("Item:")
-                                .frame(width: 100, alignment: .leading) // Adjust as needed
+                                .frame(width: 100, alignment: .leading)
                             TextField("Enter value", text: $item)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                         }
                         
                         HStack {
                             Text("Price:")
-                                .frame(width: 100, alignment: .leading) // Adjust as needed
+                                .frame(width: 100, alignment: .leading)
                             TextField("Enter value", text: $price)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                         }
                     }
                     
                     Section(header: Text("Paid by")) {
-                        ForEach(0..<groupMembers.count, id: \.self) { index in
+                        ForEach(groupMembers, id: \.self) { member in
                             HStack {
-                                Text(groupMembers[index])
-                                    .frame(width: 100, alignment: .leading) // Adjust as needed
+                                Text(member)
+                                    .frame(width: 100, alignment: .leading)
+                                
+                                Spacer()
+                                
+                                if selectedMember == member {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(.blue) // Color for checkmark
+                                }
+                            }
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                if selectedMember == member {
+                                    selectedMember = nil
+                                } else {
+                                    selectedMember = member
+                                }
                             }
                         }
                     }

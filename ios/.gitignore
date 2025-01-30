@@ -1,0 +1,17 @@
+# Xcode
+build/
+xcuserdata/
+*.pbxuser
+*.xccheckout
+*.xcuserstate
+*.xcscmblueprint
+*.xcbkptlist
+Pecto.xcodeproj/xcshareddata/
+!Pecto.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+
+xcschememanagement
+
+
+# Swift Package Manager
+.build/
+
