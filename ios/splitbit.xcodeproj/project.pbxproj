@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		7695A26B2D4BC93700562AFF /* openapi.yml in Resources */ = {isa = PBXBuildFile; fileRef = 7695A26A2D4BC93700562AFF /* openapi.yml */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		E827F1C92CC68C2700C73698 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,6 +28,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7695A26A2D4BC93700562AFF /* openapi.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; name = openapi.yml; path = ../openapi.yml; sourceTree = SOURCE_ROOT; };
 		E827F1B82CC68C2400C73698 /* splitbit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = splitbit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E827F1C82CC68C2700C73698 /* splitbitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = splitbitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E827F1D22CC68C2700C73698 /* splitbitUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = splitbitUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -75,6 +80,7 @@
 		E827F1AF2CC68C2400C73698 = {
 			isa = PBXGroup;
 			children = (
+				7695A26A2D4BC93700562AFF /* openapi.yml */,
 				E827F1BA2CC68C2400C73698 /* splitbit */,
 				E827F1CB2CC68C2700C73698 /* splitbitTests */,
 				E827F1D52CC68C2700C73698 /* splitbitUITests */,
@@ -212,6 +218,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7695A26B2D4BC93700562AFF /* openapi.yml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
