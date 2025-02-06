@@ -91,6 +91,7 @@
     .card {
         width: 35vw;
         height: 30%; 
+        min-height: 120px;
         border-radius: 8px;
         overflow: hidden;
         display: flex;

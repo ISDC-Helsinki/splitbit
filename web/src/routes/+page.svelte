@@ -103,7 +103,7 @@
 </script>
 
 <div class="main">
-  <div class="panel">
+  <div class="panel-left">
     <div class="column">
       <div>
         <h1>Overview</h1>
@@ -159,7 +159,7 @@
     </div>
   </div>
 
-  <div class="panel">
+  <div class="panel-right">
     <div class="column">
       <div class="top">
         <div>
@@ -175,8 +175,9 @@
 
       <div class="latest-expenses">
         {#each expenses as g}
-          <ExpenseCard name={g.name} expense={g.expense} date={g.date} />
+          <ExpenseCard name={g.name} expense={g.expense} date={g.date} elaborate=true/>
         {/each}
+
       </div>
     </div>
 
@@ -233,7 +234,7 @@
         </div>
       </div>
 
-      <div class="column">
+      <div class="column-archive">
         <div class="top">
           <div>
             <h1>Your archived groups are:</h1>
@@ -260,7 +261,7 @@
   .main {
     display: flex;
     flex-direction: row;
-    gap: 25px;
+    gap: 40px;
   }
 
   .active-card-holder {
@@ -268,6 +269,9 @@
     display: flex;
     flex-direction: row;
     gap: 15px;
+    width: 100%;
+    overflow-x: scroll;
+    border-radius: 10px;
   }
 
   .column {
@@ -290,29 +294,45 @@
   }
 
   .archived-card-holder {
-    overflow: hidden;
+    overflow: scroll;
     display: flex;
     flex-direction: column;
     gap: 15px;
+    border-top-left-radius: 10px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 10px;
+    border-top-right-radius: 20px;
   }
 
-  .panel {
+  .panel-left {
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 40px;
+    width: 21vw;
+  }
+
+  .panel-right {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    width: 60vw;
   }
 
   .friends {
-    width: 500px;
+    width: 20vw;
     border-radius: 10px;
     background-color: rgb(var(--m3-scheme-surface-container));
     padding: 15px;
+    height: min-content;
   }
 
   .row {
     display: flex;
     flex-direction: row;
-    gap: 40px;
+    gap: 1vw;
+    width: 60vw;
+    height: 20vw;
+    justify-items: space-between;
   }
 
   .small-row {
@@ -321,7 +341,6 @@
     gap: 10px;
     align-items: center;
   }
-
 
   .frame {
     border: 1px solid;
@@ -345,4 +364,14 @@
     gap: 15px;
     padding: 15px;
   }
+
+  .column-archive {
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    background-color: rgb(var(--m3-scheme-surface-container));
+    padding: 15px;
+    width: 36vw;
+  }
+
 </style>

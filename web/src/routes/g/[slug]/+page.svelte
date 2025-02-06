@@ -7,6 +7,8 @@
   import priceIcon from "@ktibow/iconset-material-symbols/price-check";
   import check from "@ktibow/iconset-material-symbols/check";
   import { PUBLIC_SERVER_URL } from "$env/static/public";
+  import ExpenseCard from "../../ExpenseCard.svelte";
+  export let elaborate = true
   export let data;
   let name = "";
   let price = "";
@@ -28,6 +30,41 @@
     });
   };
   let open = true;
+
+  let expenses = [
+    {
+      name: "Ppt evening",
+      groupicon: "FamilyRestroom",
+      expenseicon: "ShoppingCart",
+      member: "Mariusz",
+      expense: "Fish",
+      date: 120,
+    },
+    {
+      name: "Eetu's house",
+      groupicon: "FamilyRestroom",
+      expenseicon: "ShoppingCart",
+      member: "Eetu",
+      expense: "Decorations",
+      price: 100,
+    },
+    {
+      name: "Farm",
+      groupicon: "FamilyRestroom",
+      expenseicon: "Cottage",
+      member: "Piettari",
+      expense: "Cottage",
+      price: 80,
+    },
+    {
+      name: "Isis",
+      groupicon: "FamilyRestroom",
+      expenseicon: "ShoppingCart",
+      member: "Jakub",
+      expense: "BK entry",
+      price: 1,
+    },
+  ];
 </script>
 
 <div>
@@ -40,22 +77,8 @@
   <div class="container">
     <div class="content">
       <ul>
-        {#each data.items as i}
-          <ListItemButton headline={i.name} supporting="Paid something" lines={2}>
-            <svelte:fragment slot="leading">
-              <div class="date">
-                Sep
-                <b>09</b>
-              </div>
-              <Icon icon={groceryIcon} />
-            </svelte:fragment>
-            <svelte:fragment slot="trailing">
-              <div class="paid m3-font-body-medium">
-                You lent
-                <b>{i.price}$</b>
-              </div>
-            </svelte:fragment>
-          </ListItemButton>
+        {#each expenses as i}
+          <ExpenseCard name={i.name} expense={i.price} date={i.date} />
         {/each}
       </ul>
     </div>

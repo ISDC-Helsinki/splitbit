@@ -85,8 +85,9 @@
     .card {
         width: 30%;
         max-width: 380px;
-        height: 50vw; 
+        min-width: 300px;
         max-height: 400px;
+        min-height: 385px;
         border-radius: 8px;
         overflow: hidden;
         display: flex;
