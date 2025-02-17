@@ -16,7 +16,8 @@ import retrofit2.http.POST
 object Server {
     private val retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl("https://split-isdc.kuchta.dev")
+            //.baseUrl("https://split-isdc.kuchta.dev")
+            .baseUrl("10.112.31.13:8080")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }

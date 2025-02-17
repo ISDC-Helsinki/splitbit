@@ -6,12 +6,12 @@
   import shoppingBagIcon from "@ktibow/iconset-material-symbols/shopping-bag";
   import priceIcon from "@ktibow/iconset-material-symbols/price-check";
   import check from "@ktibow/iconset-material-symbols/check";
-    import { PUBLIC_SERVER_URL } from "$env/static/public";
+  import { PUBLIC_SERVER_URL } from "$env/static/public";
   export let data;
   let name = "";
   let price = "";
 
-  let addItem = (e : Event) => {
+  let addItem = (e: Event) => {
     e.preventDefault();
     const item = {
       id: 14,
@@ -24,14 +24,18 @@
       method: "POST",
       body: JSON.stringify(item),
     }).then((_) => {
-      data.items = [item, ...data.items]
-      
+      data.items = [item, ...data.items];
     });
   };
   let open = true;
-
 </script>
 
+<div>
+  <h2>
+    Balance:
+    {data.balance}
+  </h2>
+</div>
 <div class="screen">
   <div class="container">
     <div class="content">
@@ -78,7 +82,7 @@
     display: flex;
     align-items: flex-start;
     height: 100%;
-    gap:1rem;
+    gap: 1rem;
   }
   .contents {
     padding: 1rem;

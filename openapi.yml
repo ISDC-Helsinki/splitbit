@@ -8,7 +8,7 @@ servers:
 security:
   # This makes every route by default auth protected
   - BearerAuthHeader: [] # Authorization header
-  - BearerAuthCookie: [] # Token in cookie 
+  - BearerAuthCookie: [] # Token in cookie
 components:
   securitySchemes:
     BearerAuthHeader:
@@ -59,15 +59,16 @@ components:
                 type: string
               members:
                 type: array
-                $ref: "#/components/schemas/Member"
+                items:
+                  $ref: "#/components/schemas/Member"
               items:
                 type: array
-                $ref: "#/components/schemas/Item"
+                items:
+                  $ref: "#/components/schemas/Item"
               money_balance:
                 type: integer
             required:
               - name
-              - members
               - money_balance
   requestBodies:
     register:
@@ -93,7 +94,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Item'
+            $ref: "#/components/schemas/Item"
   schemas:
     UserCredentials:
       type: object
@@ -127,7 +128,7 @@ components:
       properties:
         id:
           type: integer
-          # readOnly: true # TODO unfortunately ogen doesn't support readOnly marker. But we want to reuse this schema for posting 
+          # readOnly: true # TODO unfortunately ogen doesn't support readOnly marker. But we want to reuse this schema for posting
           # as well as getting for simplicity. So for now, the convention would be to set the id to 0 as it will get ignored either way.
         timestamp:
           type: integer
@@ -163,6 +164,57 @@ components:
         - name
         - displayName
 paths:
+  /dashboard:
+    get:
+      summary: Get user dashboard information based on the user_id embedded inside jwt
+      responses:
+        "200":
+          description: Dashboard information retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  friends:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Member"
+                  active_groups:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Group"
+                required:
+                  - name
+                  - friends
+                  - active_groups
+  /groups/{id}/archive:
+    post:
+      summary: Archive a group
+      description: Marks the group with the specified ID as archived, preventing it from being highlighted on clients.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Group successfully archived
+  /groups/{id}/unarchive:
+      post:
+        summary: Unarchive a group
+        description: Marks the group with the specified ID as unarchived, making it visible again to clients.
+        parameters:
+          - name: id
+            in: path
+            required: true
+            schema:
+              type: integer
+        responses:
+          "200":
+            description: Group successfully archived
   /ping:
     get:
       security: []

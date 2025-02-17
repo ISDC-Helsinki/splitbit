@@ -9,7 +9,8 @@ val openApiGeneratedDir = "$buildDir/generated/sources/openApi"
 openApiGenerate {
     generatorName.set("kotlin")
     library.set("jvm-okhttp4")
-    inputSpec.set("/home/maniu/atm/splitbit/openapi.yml")
+   // inputSpec.set("/home/maniu/atm/splitbit/openapi.yml")
+    inputSpec.set("/home/golubmik/Documents/ISDC/splitbit/openapi.yml")
     outputDir.set(openApiGeneratedDir)
     packageName.set("fi.isdc_helsinki.splitbit.client")
     // ignoreFileOverride.set(".openapi-generator-ignore")
@@ -93,6 +94,8 @@ dependencies {
     implementation(libs.androidx.compose.material.iconsExtended)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    implementation("com.auth0.android:jwtdecode:2.0.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -100,4 +103,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
 }
