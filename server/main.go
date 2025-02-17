@@ -38,7 +38,7 @@ func (h *Handler) GroupsGet(ctx context.Context) ([]api.Group, error) {
 }
 
 func (h *Handler) GroupsPost(ctx context.Context, req *api.GroupsPostReq) (int, error) {
-	gid, _ := qs.AddGroup(ctx, data.AddGroupParams{Name: req.Name, IconName: req.IconName}) 
+	gid, _ := qs.AddGroup(ctx, data.AddGroupParams{Name: req.Name, IconName: req.IconName})
 
 	for _, member := range req.Members {
 		qs.AddMemberToGroup(ctx, data.AddMemberToGroupParams{GroupID: gid, MemberID: int64(member)})
@@ -99,12 +99,12 @@ func (h *Handler) GroupsIDItemsPost(ctx context.Context, req *api.Item, params a
 }
 
 func (h *Handler) MembersUsernameGet(ctx context.Context, params api.MembersUsernameGetParams) (api.MembersUsernameGetRes, error) {
-	g, _ := qs.GetMemberFromUsername(ctx, params.Username)
+	user, _ := qs.GetMemberFromUsername(ctx, params.Username)
 
-	return api.MembersUsernameGetOK{
-		ID: int(g.username)
-		DisplayName: user.DisplayName,
-	}
+	return &api.MembersUsernameGetOK{
+		ID:          int(user.ID),
+		DisplayName: user.Displayname,
+	}, nil
 
 }
 
