@@ -7,7 +7,7 @@ export async function load({ }) {
                 data, // only present if 2XX response
                 error, // only present if 4XX or 5XX response
                 response
-        } = await api.GET("/groups-nonauthed")
+        } = await api.GET("/groups")
         if (response.status != 200) {
                 errorOut(response.status, response.statusText);
         }

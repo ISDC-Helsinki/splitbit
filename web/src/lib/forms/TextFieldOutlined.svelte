@@ -79,7 +79,6 @@
     left: 0.75rem;
     top: 1rem;
     color: rgb(var(--error, var(--m3-scheme-on-surface-variant)));
-    background-color: rgb(var(--m3-util-background, var(--m3-scheme-surface)));
     padding: 0 0.25rem;
     pointer-events: none;
     transition:
@@ -132,6 +131,7 @@
     font-size: var(--m3-font-body-small-size, 0.75rem);
     line-height: var(--m3-font-body-small-height, 1rem);
     letter-spacing: var(--m3-font-body-small-tracking, 0.4);
+    background-color: rgb(var(--m3-util-background, var(--m3-scheme-surface)));
   }
   input:hover ~ label {
     color: rgb(var(--error, var(--m3-scheme-on-surface)));

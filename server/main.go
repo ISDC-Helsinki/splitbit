@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"log"
 	"net/http"
 	"os"
@@ -29,9 +30,22 @@ func (h *Handler) GroupsGet(ctx context.Context) ([]api.Group, error) {
 	resp := make([]api.Group, len(g))
 	// Convert each database Group to API Group
 	for i, dbGroup := range g {
+
+		params := data.GetNetAmountForUserInGroupParams{
+			GroupID:  dbGroup.ID,
+			AuthorID: ctx.Value("user_id").(int64),
+		}
+
+		amountOwed, err := qs.GetNetAmountForUserInGroup(ctx, params)
+		if err != nil {
+			return nil, err
+		}
+
 		resp[i] = api.Group{
-			ID:   int(dbGroup.ID),
-			Name: dbGroup.Name,
+			ID:         int(dbGroup.ID),
+			Name:       dbGroup.Name,
+			NoItems:    !amountOwed.Valid,
+			AmountOwed: amountOwed.Float64,
 		}
 	}
 	return resp, nil
@@ -88,11 +102,12 @@ func (h *Handler) GroupsIDItemsGet(ctx context.Context, params api.GroupsIDItems
 
 func (h *Handler) GroupsIDItemsPost(ctx context.Context, req *api.Item, params api.GroupsIDItemsPostParams) (int, error) {
 	g, _ := qs.AddItemToGroup(ctx, data.AddItemToGroupParams{
-		Name:      req.Name,
-		Timestamp: int64(req.Timestamp),
-		Price:     req.Price,
-		GroupID:   int64(params.ID),
-		AuthorID:  int64(req.AuthorID),
+		Name:          req.Name,
+		Timestamp:     int64(req.Timestamp),
+		Price:         req.Price,
+		GroupID:       int64(params.ID),
+		AuthorID:      int64(req.AuthorID),
+		Reimbursement: sql.NullBool{Bool: req.Reimbursement.Value, Valid: req.Reimbursement.Set},
 	})
 
 	return int(g), nil
