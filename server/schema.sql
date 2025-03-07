@@ -29,9 +29,9 @@ CREATE TABLE items ( --bs: medium
         FOREIGN KEY (author_id) REFERENCES members (id)
 );
 
-CREATE TABLE expense_participants (
-    item_id INTEGER NOT NULL, -- Foreign key referencing the items table
-    member_id INTEGER NOT NULL, -- Foreign key referencing the members table
+CREATE TABLE expense_participants ( --bs: medium
+    item_id INTEGER NOT NULL, --bs: rel
+    member_id INTEGER NOT NULL, --bs: rel
     PRIMARY KEY (item_id, member_id), -- Composite primary key (ensures unique pairs)
     FOREIGN KEY (item_id) REFERENCES items (id), -- Foreign key constraint to items table
     FOREIGN KEY (member_id) REFERENCES members (id) -- Foreign key constraint to members table

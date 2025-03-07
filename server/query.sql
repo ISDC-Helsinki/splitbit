@@ -64,3 +64,7 @@ JOIN items i ON ep.item_id = i.id
 JOIN members m ON ep.member_id = m.id
 WHERE ep.item_id = ?;
 
+-- name: AddExpenseParticipant :exec
+INSERT INTO expense_participants (item_id, member_id) VALUES (?, ?);
+
+

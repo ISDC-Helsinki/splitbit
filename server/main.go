@@ -119,7 +119,6 @@ func (h *Handler) GroupsIDGet(ctx context.Context, params api.GroupsIDGetParams)
 			Participants: ep_members,
 		})
 	}
-
 	// Calculate money balance for the group
 	netAmountParams := data.GetNetAmountForUserInGroupParams{
 		AuthorID: userid,
@@ -171,7 +170,8 @@ func (h *Handler) GroupsIDItemsGet(ctx context.Context, params api.GroupsIDItems
 }
 
 func (h *Handler) GroupsIDItemsPost(ctx context.Context, req *api.Item, params api.GroupsIDItemsPostParams) (int, error) {
-	g, _ := qs.AddItemToGroup(ctx, data.AddItemToGroupParams{
+	// Add the new item to the 'items' table
+	g, err := qs.AddItemToGroup(ctx, data.AddItemToGroupParams{
 		Name:          req.Name,
 		Timestamp:     int64(req.Timestamp),
 		Price:         req.Price,
@@ -179,6 +179,25 @@ func (h *Handler) GroupsIDItemsPost(ctx context.Context, req *api.Item, params a
 		AuthorID:      int64(req.AuthorID),
 		Reimbursement: sql.NullBool{Bool: req.Reimbursement.Value, Valid: req.Reimbursement.Set},
 	})
+	if err != nil {
+		return 0, err
+	}
+
+	// Ensure participants are passed in the request
+	if len(req.Participants) == 0 {
+		return 0, fmt.Errorf("no participants provided")
+	}
+
+	// Add participants to the 'expense_participants' table
+	for _, member := range req.Participants {
+		err := qs.AddExpenseParticipant(ctx, data.AddExpenseParticipantParams{
+			ItemID:   g,                // The ID of the item that was just added
+			MemberID: int64(member.ID), // The ID of the participant to add
+		})
+		if err != nil {
+			return 0, err
+		}
+	}
 
 	return int(g), nil
 }
